@@ -46,6 +46,7 @@
 		A1000094000000000000094 /* TMDbService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000095000000000000095 /* TMDbService.swift */; };
 		A1000096000000000000096 /* GoogleBooksService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000097000000000000097 /* GoogleBooksService.swift */; };
 		A1000098000000000000098 /* MemeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000099000000000000099 /* MemeDetector.swift */; };
+		A100009A00000000000009A /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100009B00000000000009B /* OnboardingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,6 +104,7 @@
 		A1000095000000000000095 /* TMDbService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TMDbService.swift; sourceTree = "<group>"; };
 		A1000097000000000000097 /* GoogleBooksService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleBooksService.swift; sourceTree = "<group>"; };
 		A1000099000000000000099 /* MemeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeDetector.swift; sourceTree = "<group>"; };
+		A100009B00000000000009B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -241,6 +243,7 @@
 			children = (
 				A1000075000000000000075 /* ProcessingView.swift */,
 				A1000077000000000000077 /* AuthStatusView.swift */,
+				A100009B00000000000009B /* OnboardingView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -382,6 +385,7 @@
 				A1000094000000000000094 /* TMDbService.swift in Sources */,
 				A1000096000000000000096 /* GoogleBooksService.swift in Sources */,
 				A1000098000000000000098 /* MemeDetector.swift in Sources */,
+				A100009A00000000000009A /* OnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,7 +9,8 @@ struct ProcessingView: View {
             photoService: PhotoLibraryService(),
             extractor: MusicExtractor(),
             youtubeService: YouTubeService(),
-            authService: AuthService()
+            authService: AuthService(),
+            googleDocsService: GoogleDocsService()
         ))
     }
 
@@ -43,6 +44,11 @@ struct ProcessingView: View {
                     // Results
                     if !viewModel.results.isEmpty {
                         resultsSection
+                    }
+
+                    // Google Doc Link
+                    if let docURL = viewModel.googleDocURL {
+                        googleDocSection(url: docURL)
                     }
                 }
                 .padding()
@@ -236,6 +242,29 @@ struct ProcessingView: View {
         case .flagged: return .orange
         case .failed: return .red
         }
+    }
+
+    // MARK: - Google Doc Section
+
+    @ViewBuilder
+    private func googleDocSection(url: String) -> some View {
+        HStack {
+            Image(systemName: "doc.text.fill")
+                .foregroundColor(.blue)
+
+            Text("Content Log")
+                .font(.subheadline)
+
+            Spacer()
+
+            if let docURL = URL(string: url) {
+                Link("Open", destination: docURL)
+                    .font(.subheadline)
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(10)
     }
 }
 

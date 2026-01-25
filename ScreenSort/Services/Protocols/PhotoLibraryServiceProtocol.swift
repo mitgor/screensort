@@ -17,6 +17,13 @@ protocol PhotoLibraryServiceProtocol {
     /// Add asset to specified album
     func addAsset(_ asset: PHAsset, toAlbum albumName: String) async throws
 
+    /// Set caption on a photo asset (uses undocumented API - personal use only)
+    /// Caption format: "ScreenSort: {Type}: {Details}"
+    func setCaption(_ caption: String, for asset: PHAsset) async throws
+
+    /// Get caption from a photo asset (if set)
+    func getCaption(for asset: PHAsset) -> String?
+
     /// Check if we have full or limited access
     var hasFullAccess: Bool { get }
 

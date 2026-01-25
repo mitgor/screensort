@@ -38,6 +38,9 @@ enum PhotoLibraryError: Error, RecoverableError {
     /// Failed to move a photo to an album.
     case moveToAlbumFailed(reason: String)
 
+    /// Failed to update photo caption.
+    case captionUpdateFailed(reason: String)
+
     var errorDescription: String? {
         switch self {
         case .accessDenied:
@@ -50,6 +53,8 @@ enum PhotoLibraryError: Error, RecoverableError {
             return "The photo could not be found."
         case .moveToAlbumFailed(let reason):
             return "Failed to organize photo: \(reason)"
+        case .captionUpdateFailed(let reason):
+            return "Failed to update photo caption: \(reason)"
         }
     }
 
@@ -65,6 +70,8 @@ enum PhotoLibraryError: Error, RecoverableError {
             return "The photo may have been deleted. Refresh and try again."
         case .moveToAlbumFailed:
             return "Check that the photo still exists and try again."
+        case .captionUpdateFailed:
+            return "Caption feature uses undocumented API. Try again or skip captions."
         }
     }
 
@@ -72,7 +79,7 @@ enum PhotoLibraryError: Error, RecoverableError {
         switch self {
         case .accessDenied, .limitedAccessUnsupported:
             return false  // Requires settings change
-        case .albumCreationFailed, .moveToAlbumFailed:
+        case .albumCreationFailed, .moveToAlbumFailed, .captionUpdateFailed:
             return true
         case .assetNotFound:
             return false  // Asset is gone

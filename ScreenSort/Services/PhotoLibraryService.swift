@@ -101,6 +101,26 @@ class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol {
         }
     }
 
+    // MARK: - Caption Management (undocumented API - personal use only)
+
+    func setCaption(_ caption: String, for asset: PHAsset) async throws {
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                let request = PHAssetChangeRequest(for: asset)
+                // Using undocumented accessibilityDescription property
+                // This sets the caption visible in Photos app
+                request.setValue(caption, forKey: "accessibilityDescription")
+            }
+        } catch {
+            throw PhotoLibraryError.captionUpdateFailed(reason: error.localizedDescription)
+        }
+    }
+
+    func getCaption(for asset: PHAsset) -> String? {
+        // Using undocumented accessibilityDescription property
+        return asset.value(forKey: "accessibilityDescription") as? String
+    }
+
     // MARK: - Photo Library Change Observation
 
     func observeNewScreenshots() -> AsyncStream<[PHAsset]> {

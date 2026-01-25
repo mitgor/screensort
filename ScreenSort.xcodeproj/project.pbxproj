@@ -33,6 +33,8 @@
 		A1000072000000000000072 /* ProcessingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000073000000000000073 /* ProcessingViewModel.swift */; };
 		A1000074000000000000074 /* ProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000075000000000000075 /* ProcessingView.swift */; };
 		A1000076000000000000076 /* AuthStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000077000000000000077 /* AuthStatusView.swift */; };
+		A1000080000000000000080 /* GoogleDocsServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000081000000000000081 /* GoogleDocsServiceProtocol.swift */; };
+		A1000082000000000000082 /* GoogleDocsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000083000000000000083 /* GoogleDocsService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +79,8 @@
 		A1000073000000000000073 /* ProcessingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingViewModel.swift; sourceTree = "<group>"; };
 		A1000075000000000000075 /* ProcessingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingView.swift; sourceTree = "<group>"; };
 		A1000077000000000000077 /* AuthStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStatusView.swift; sourceTree = "<group>"; };
+		A1000081000000000000081 /* GoogleDocsServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDocsServiceProtocol.swift; sourceTree = "<group>"; };
+		A1000083000000000000083 /* GoogleDocsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDocsService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,6 +177,7 @@
 				A1000065000000000000065 /* MusicExtractor.swift */,
 				A1000069000000000000069 /* YouTubeService.swift */,
 				A1000071000000000000071 /* APIClient.swift */,
+				A1000083000000000000083 /* GoogleDocsService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -185,6 +190,7 @@
 				A1000055000000000000055 /* AuthServiceProtocol.swift */,
 				A1000063000000000000063 /* MusicExtractorProtocol.swift */,
 				A1000067000000000000067 /* YouTubeServiceProtocol.swift */,
+				A1000081000000000000081 /* GoogleDocsServiceProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -330,6 +336,8 @@
 				A1000072000000000000072 /* ProcessingViewModel.swift in Sources */,
 				A1000074000000000000074 /* ProcessingView.swift in Sources */,
 				A1000076000000000000076 /* AuthStatusView.swift in Sources */,
+				A1000080000000000000080 /* GoogleDocsServiceProtocol.swift in Sources */,
+				A1000082000000000000082 /* GoogleDocsService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

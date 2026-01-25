@@ -22,314 +22,427 @@ struct ProcessingView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Photo Permission Status
-                    permissionSection
+            ZStack {
+                // iOS 26 Liquid Glass background
+                backgroundGradient
 
-                    // YouTube Auth Status
-                    AuthStatusView(
-                        isAuthenticated: viewModel.isYouTubeAuthenticated,
-                        onLogin: { await viewModel.authenticateYouTube() },
-                        onLogout: { viewModel.signOutYouTube() }
-                    )
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // Status Cards
+                        statusCardsSection
 
-                    // Process Button
-                    processButton
+                        // Process Button
+                        processButton
+                            .padding(.top, 8)
 
-                    // Progress
-                    if viewModel.isProcessing {
-                        progressSection
+                        // Progress
+                        if viewModel.isProcessing {
+                            progressSection
+                                .transition(.asymmetric(
+                                    insertion: .scale.combined(with: .opacity),
+                                    removal: .opacity
+                                ))
+                        }
+
+                        // Error
+                        if let error = viewModel.lastError {
+                            errorSection(error)
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+
+                        // Results
+                        if !viewModel.results.isEmpty {
+                            resultsSection
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
+
+                        // Google Doc Section
+                        googleDocSection
                     }
-
-                    // Error
-                    if let error = viewModel.lastError {
-                        errorSection(error)
-                    }
-
-                    // Results
-                    if !viewModel.results.isEmpty {
-                        resultsSection
-                    }
-
-                    // Google Doc Section (always show after processing to display status/errors)
-                    googleDocSection
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
                 }
-                .padding()
             }
             .navigationTitle("ScreenSort")
+            .navigationBarTitleDisplayMode(.large)
             .onAppear {
                 viewModel.checkInitialState()
             }
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.isProcessing)
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.lastError)
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.results.count)
         }
     }
 
-    // MARK: - Permission Section
+    // MARK: - Background
 
-    @ViewBuilder
-    private var permissionSection: some View {
-        HStack {
-            Image(systemName: permissionIcon)
-                .foregroundColor(permissionColor)
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [
+                Color(.systemBackground),
+                Color(.systemGray6).opacity(0.5)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
+    }
 
-            Text(permissionText)
-                .font(.subheadline)
+    // MARK: - Status Cards Section
 
-            Spacer()
+    private var statusCardsSection: some View {
+        VStack(spacing: 12) {
+            // Photo Permission Card
+            GlassCard {
+                HStack(spacing: 14) {
+                    // Icon with gradient background
+                    Circle()
+                        .fill(permissionColor.gradient)
+                        .frame(width: 44, height: 44)
+                        .overlay {
+                            Image(systemName: permissionIcon)
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundStyle(.white)
+                        }
 
-            if viewModel.photoPermissionStatus == .notDetermined {
-                Button("Grant Access") {
-                    Task {
-                        await viewModel.requestPhotoAccess()
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Photo Library")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+
+                        Text(permissionText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    if viewModel.photoPermissionStatus == .notDetermined {
+                        Button("Allow") {
+                            Task {
+                                await viewModel.requestPhotoAccess()
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.capsule)
+                        .controlSize(.small)
+                    } else if viewModel.photoPermissionStatus == .denied {
+                        Button("Settings") {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+                        .controlSize(.small)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.green)
+                            .symbolRenderingMode(.hierarchical)
                     }
                 }
-                .buttonStyle(.bordered)
-            } else if viewModel.photoPermissionStatus == .denied {
-                Button("Open Settings") {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
+            }
+
+            // Google Auth Card
+            GlassCard {
+                HStack(spacing: 14) {
+                    Circle()
+                        .fill(viewModel.isYouTubeAuthenticated ? Color.green.gradient : Color.red.gradient)
+                        .frame(width: 44, height: 44)
+                        .overlay {
+                            Image(systemName: "person.crop.circle.badge.checkmark")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .symbolRenderingMode(.hierarchical)
+                        }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Google Account")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+
+                        Text(viewModel.isYouTubeAuthenticated ? "Connected" : "Sign in required")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    if viewModel.isYouTubeAuthenticated {
+                        Button("Sign Out") {
+                            viewModel.signOutYouTube()
+                        }
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+                        .controlSize(.small)
+                        .tint(.secondary)
+                    } else {
+                        Button("Sign In") {
+                            Task {
+                                await viewModel.authenticateYouTube()
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.capsule)
+                        .controlSize(.small)
                     }
                 }
-                .buttonStyle(.bordered)
             }
         }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
     }
 
     private var permissionIcon: String {
         switch viewModel.photoPermissionStatus {
-        case .authorized:
-            return "photo.fill.on.rectangle.fill"
-        case .limited:
-            return "photo.on.rectangle"
-        case .denied, .restricted:
-            return "xmark.circle.fill"
-        case .notDetermined:
-            return "questionmark.circle.fill"
-        @unknown default:
-            return "questionmark.circle.fill"
+        case .authorized: return "photo.stack.fill"
+        case .limited: return "photo.on.rectangle"
+        case .denied, .restricted: return "xmark.circle.fill"
+        case .notDetermined: return "photo.badge.plus"
+        @unknown default: return "questionmark.circle"
         }
     }
 
     private var permissionColor: Color {
         switch viewModel.photoPermissionStatus {
-        case .authorized:
-            return .green
-        case .limited:
-            return .orange
-        case .denied, .restricted:
-            return .red
-        case .notDetermined:
-            return .gray
-        @unknown default:
-            return .gray
+        case .authorized: return .green
+        case .limited: return .orange
+        case .denied, .restricted: return .red
+        case .notDetermined: return .blue
+        @unknown default: return .gray
         }
     }
 
     private var permissionText: String {
         switch viewModel.photoPermissionStatus {
-        case .authorized:
-            return "Full Photo Access"
-        case .limited:
-            return "Limited Photo Access"
-        case .denied:
-            return "Photo Access Denied"
-        case .restricted:
-            return "Photo Access Restricted"
-        case .notDetermined:
-            return "Photo Access Not Set"
-        @unknown default:
-            return "Unknown Status"
+        case .authorized: return "Full access granted"
+        case .limited: return "Limited access"
+        case .denied: return "Access denied"
+        case .restricted: return "Access restricted"
+        case .notDetermined: return "Permission needed"
+        @unknown default: return "Unknown"
         }
     }
 
     // MARK: - Process Button
 
-    @ViewBuilder
     private var processButton: some View {
-        Button(action: {
+        let isEnabled = viewModel.hasPhotoAccess && viewModel.isYouTubeAuthenticated && !viewModel.isProcessing
+
+        return Button(action: {
             Task {
                 await viewModel.processNow()
             }
         }) {
-            HStack {
-                Image(systemName: "play.fill")
-                Text("Process Now")
+            HStack(spacing: 12) {
+                if viewModel.isProcessing {
+                    ProgressView()
+                        .tint(.white)
+                } else {
+                    Image(systemName: "sparkles")
+                        .font(.title3)
+                        .symbolRenderingMode(.hierarchical)
+                }
+
+                Text(viewModel.isProcessing ? "Processing..." : "Process Screenshots")
+                    .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)
-            .padding()
+            .padding(.vertical, 18)
+            .background {
+                if isEnabled {
+                    LinearGradient(
+                        colors: [.accentColor, .accentColor.opacity(0.8)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                } else {
+                    Color.gray.opacity(0.3)
+                }
+            }
+            .foregroundStyle(isEnabled ? .white : .secondary)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: isEnabled ? .accentColor.opacity(0.3) : .clear, radius: 12, y: 6)
         }
-        .buttonStyle(.borderedProminent)
-        .disabled(!viewModel.hasPhotoAccess || !viewModel.isYouTubeAuthenticated || viewModel.isProcessing)
+        .disabled(!isEnabled)
+        .animation(.spring(response: 0.3), value: isEnabled)
     }
 
     // MARK: - Progress Section
 
-    @ViewBuilder
     private var progressSection: some View {
-        VStack(spacing: 10) {
-            ProgressView(value: Double(viewModel.processingProgress.current),
-                        total: Double(max(viewModel.processingProgress.total, 1)))
+        GlassCard {
+            VStack(spacing: 14) {
+                HStack {
+                    Text("Processing")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
 
-            Text("Processing \(viewModel.processingProgress.current) of \(viewModel.processingProgress.total)")
-                .font(.caption)
-                .foregroundColor(.secondary)
+                    Spacer()
+
+                    Text("\(viewModel.processingProgress.current)/\(viewModel.processingProgress.total)")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                }
+
+                ProgressView(
+                    value: Double(viewModel.processingProgress.current),
+                    total: Double(max(viewModel.processingProgress.total, 1))
+                )
+                .tint(.accentColor)
+            }
         }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
     }
 
     // MARK: - Error Section
 
-    @ViewBuilder
     private func errorSection(_ error: String) -> some View {
-        HStack {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.red)
-            Text(error)
-                .font(.caption)
-                .foregroundColor(.red)
+        GlassCard(tint: .red) {
+            HStack(spacing: 12) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.red)
+                    .symbolRenderingMode(.hierarchical)
+
+                Text(error)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+
+                Spacer()
+            }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(10)
     }
 
     // MARK: - Results Section
 
-    @ViewBuilder
     private var resultsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Results")
-                    .font(.headline)
+        GlassCard {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Text("Results")
+                        .font(.headline)
 
-                Spacer()
+                    Spacer()
 
-                // Summary badges
-                resultsSummary
-            }
+                    resultsSummary
+                }
 
-            ForEach(viewModel.results) { result in
-                resultRow(result)
+                Divider()
+                    .opacity(0.5)
+
+                LazyVStack(spacing: 12) {
+                    ForEach(viewModel.results) { result in
+                        resultRow(result)
+                    }
+                }
             }
         }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
     }
 
-    @ViewBuilder
     private var resultsSummary: some View {
         let grouped = Dictionary(grouping: viewModel.results) { $0.contentType }
 
-        HStack(spacing: 8) {
+        return HStack(spacing: 10) {
             ForEach(ScreenshotType.allCases, id: \.self) { type in
                 if let count = grouped[type]?.count, count > 0 {
                     HStack(spacing: 4) {
                         Image(systemName: type.iconName)
-                            .font(.caption)
+                            .font(.caption2)
                         Text("\(count)")
                             .font(.caption)
+                            .fontWeight(.medium)
                     }
-                    .foregroundColor(contentTypeColor(type))
+                    .foregroundStyle(contentTypeColor(type))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(contentTypeColor(type).opacity(0.15))
+                    .clipShape(Capsule())
                 }
             }
         }
     }
 
-    @ViewBuilder
     private func resultRow(_ result: ProcessingResultItem) -> some View {
         HStack(alignment: .top, spacing: 12) {
             // Content type icon
-            Image(systemName: result.contentType.iconName)
-                .foregroundColor(contentTypeColor(result.contentType))
-                .frame(width: 24)
-
-            // Status icon
-            Image(systemName: resultIcon(for: result.status))
-                .foregroundColor(resultColor(for: result.status))
-                .frame(width: 20)
-
-            VStack(alignment: .leading, spacing: 2) {
-                // Title and creator
-                if let title = result.title {
-                    if let creator = result.creator {
-                        Text("\(title) - \(creator)")
-                            .font(.subheadline)
-                            .lineLimit(2)
-                    } else {
-                        Text(title)
-                            .font(.subheadline)
-                            .lineLimit(2)
-                    }
+            Circle()
+                .fill(contentTypeColor(result.contentType).opacity(0.15))
+                .frame(width: 36, height: 36)
+                .overlay {
+                    Image(systemName: result.contentType.iconName)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(contentTypeColor(result.contentType))
                 }
 
-                // Message
-                Text(result.message)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+            VStack(alignment: .leading, spacing: 4) {
+                // Title and creator
+                if let title = result.title {
+                    HStack(spacing: 6) {
+                        Text(title)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .lineLimit(1)
 
-                // Service link if available
-                if let link = result.serviceLink, let url = URL(string: link) {
-                    Link(destination: url) {
-                        HStack(spacing: 4) {
-                            Image(systemName: serviceLinkIcon(for: result.contentType))
-                                .font(.caption)
-                            Text(serviceLinkLabel(for: result.contentType))
-                                .font(.caption)
+                        if let creator = result.creator {
+                            Text("•")
+                                .foregroundStyle(.tertiary)
+                            Text(creator)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
                         }
                     }
                 }
+
+                // Message with status
+                HStack(spacing: 6) {
+                    Image(systemName: resultIcon(for: result.status))
+                        .font(.caption2)
+                        .foregroundStyle(resultColor(for: result.status))
+
+                    Text(result.message)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                // Service link
+                if let link = result.serviceLink, let url = URL(string: link) {
+                    Link(destination: url) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.up.right.circle.fill")
+                                .font(.caption)
+                            Text(serviceLinkLabel(for: result.contentType))
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .foregroundStyle(Color.accentColor)
+                    }
+                    .padding(.top, 2)
+                }
             }
 
-            Spacer()
+            Spacer(minLength: 0)
         }
         .padding(.vertical, 4)
     }
 
     private func contentTypeColor(_ type: ScreenshotType) -> Color {
         switch type {
-        case .music:
-            return .pink
-        case .movie:
-            return .purple
-        case .book:
-            return .orange
-        case .meme:
-            return .green
-        case .unknown:
-            return .gray
-        }
-    }
-
-    private func serviceLinkIcon(for type: ScreenshotType) -> String {
-        switch type {
-        case .music:
-            return "play.rectangle.fill"
-        case .movie:
-            return "film"
-        case .book:
-            return "book.closed.fill"
-        case .meme, .unknown:
-            return "link"
+        case .music: return .pink
+        case .movie: return .purple
+        case .book: return .orange
+        case .meme: return .green
+        case .unknown: return .gray
         }
     }
 
     private func serviceLinkLabel(for type: ScreenshotType) -> String {
         switch type {
-        case .music:
-            return "Open in YouTube"
-        case .movie:
-            return "View on TMDb"
-        case .book:
-            return "View on Google Books"
-        case .meme, .unknown:
-            return "Open Link"
+        case .music: return "YouTube"
+        case .movie: return "TMDb"
+        case .book: return "Google Books"
+        case .meme, .unknown: return "Open"
         }
     }
 
@@ -353,47 +466,84 @@ struct ProcessingView: View {
 
     @ViewBuilder
     private var googleDocSection: some View {
-        // Only show if we have URL, status, or error to display
         if viewModel.googleDocURL != nil || viewModel.googleDocsStatus != nil || viewModel.googleDocsError != nil {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Image(systemName: "doc.text.fill")
-                        .foregroundColor(viewModel.googleDocsError != nil ? .orange : .blue)
+            GlassCard(tint: viewModel.googleDocsError != nil ? .orange : .blue) {
+                HStack(spacing: 14) {
+                    Circle()
+                        .fill(Color.blue.opacity(0.15))
+                        .frame(width: 40, height: 40)
+                        .overlay {
+                            Image(systemName: "doc.text.fill")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundStyle(.blue)
+                        }
 
-                    Text("Google Docs Log")
-                        .font(.subheadline)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Google Docs Log")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+
+                        if let error = viewModel.googleDocsError {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        } else if let status = viewModel.googleDocsStatus {
+                            Text(status)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
 
                     Spacer()
 
                     if let url = viewModel.googleDocURL, let docURL = URL(string: url) {
-                        Link("Open", destination: docURL)
-                            .font(.subheadline)
-                    }
-                }
-
-                // Status message
-                if let status = viewModel.googleDocsStatus {
-                    Text(status)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-
-                // Error message
-                if let error = viewModel.googleDocsError {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.orange)
-                            .font(.caption)
-                        Text(error)
-                            .font(.caption)
-                            .foregroundColor(.orange)
+                        Link(destination: docURL) {
+                            Image(systemName: "arrow.up.right.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(.blue)
+                                .symbolRenderingMode(.hierarchical)
+                        }
                     }
                 }
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(10)
         }
+    }
+}
+
+// MARK: - Glass Card Component
+
+struct GlassCard<Content: View>: View {
+    var tint: Color = .clear
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        content
+            .padding(16)
+            .background {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        .white.opacity(0.3),
+                                        .white.opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    }
+                    .overlay {
+                        if tint != .clear {
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .fill(tint.opacity(0.05))
+                        }
+                    }
+            }
+            .shadow(color: .black.opacity(0.05), radius: 10, y: 4)
     }
 }
 

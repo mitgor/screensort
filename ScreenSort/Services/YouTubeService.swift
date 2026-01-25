@@ -61,15 +61,21 @@ final class YouTubeService: YouTubeServiceProtocol {
     /// Creates a new YouTube service with the specified dependencies.
     ///
     /// - Parameters:
-    ///   - authService: Service for OAuth authentication. Defaults to `AuthService()`.
+    ///   - authService: Service for OAuth authentication.
     ///   - apiClient: HTTP client for API requests. Defaults to `APIClient.shared`.
     init(
-        authService: AuthServiceProtocol = AuthService(),
+        authService: AuthServiceProtocol,
         apiClient: APIClient = APIClient.shared
     ) {
         self.authService = authService
         self.apiClient = apiClient
         self.apiKey = Bundle.main.object(forInfoDictionaryKey: "YOUTUBE_API_KEY") as? String ?? ""
+    }
+
+    /// Convenience initializer for production use.
+    @MainActor
+    convenience init() {
+        self.init(authService: AuthService(), apiClient: APIClient.shared)
     }
 
     // MARK: - Search

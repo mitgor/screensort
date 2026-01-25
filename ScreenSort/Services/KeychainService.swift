@@ -1,7 +1,8 @@
 import Foundation
 import Security
 
-class KeychainService {
+/// Thread-safe keychain storage for authentication tokens.
+final class KeychainService: Sendable {
     private let serviceName = "com.screensort.youtube"
 
     enum Key: String {

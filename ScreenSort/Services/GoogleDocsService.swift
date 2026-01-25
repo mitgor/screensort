@@ -52,7 +52,8 @@ enum GoogleDocsError: LocalizedError, RecoverableError {
 }
 
 /// Service for logging recognized content to a Google Doc
-class GoogleDocsService: GoogleDocsServiceProtocol {
+@MainActor
+final class GoogleDocsService: GoogleDocsServiceProtocol {
 
     private let authService: AuthServiceProtocol
     private let apiClient: APIClient
@@ -74,11 +75,16 @@ class GoogleDocsService: GoogleDocsServiceProtocol {
     }
 
     init(
-        authService: AuthServiceProtocol = AuthService(),
+        authService: AuthServiceProtocol,
         apiClient: APIClient = APIClient.shared
     ) {
         self.authService = authService
         self.apiClient = apiClient
+    }
+
+    /// Convenience initializer for production use.
+    convenience init() {
+        self.init(authService: AuthService(), apiClient: APIClient.shared)
     }
 
     // MARK: - Public API

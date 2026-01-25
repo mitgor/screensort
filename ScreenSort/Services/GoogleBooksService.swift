@@ -8,6 +8,7 @@
 import Foundation
 
 /// Service for searching books on Google Books
+@MainActor
 final class GoogleBooksService: GoogleBooksServiceProtocol {
 
     // MARK: - Properties
@@ -20,11 +21,16 @@ final class GoogleBooksService: GoogleBooksServiceProtocol {
     // MARK: - Initialization
 
     init(
-        authService: AuthServiceProtocol = AuthService(),
+        authService: AuthServiceProtocol,
         apiClient: APIClient = APIClient.shared
     ) {
         self.authService = authService
         self.apiClient = apiClient
+    }
+
+    /// Convenience initializer for production use.
+    convenience init() {
+        self.init(authService: AuthService(), apiClient: APIClient.shared)
     }
 
     // MARK: - GoogleBooksServiceProtocol

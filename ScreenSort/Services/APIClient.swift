@@ -1,6 +1,7 @@
 import Foundation
 
-class APIClient {
+/// Thread-safe API client using actor isolation for concurrent network requests.
+actor APIClient {
 
     static let shared = APIClient()
 

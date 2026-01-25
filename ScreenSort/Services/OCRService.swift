@@ -11,7 +11,7 @@ import Photos
 
 /// Service for extracting text from images using Apple's Vision Framework
 /// All processing is on-device with no network calls (except iCloud photo fetch)
-final class OCRService: OCRServiceProtocol {
+final class OCRService: OCRServiceProtocol, Sendable {
 
     // MARK: - Public API
 

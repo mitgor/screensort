@@ -2,7 +2,7 @@
 //  OnboardingView.swift
 //  ScreenSort
 //
-//  Modern onboarding flow explaining app functionality and permissions.
+//  Modern onboarding flow with iOS 26 Liquid Glass design.
 //
 
 import SwiftUI
@@ -11,77 +11,99 @@ import Photos
 struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
     @State private var currentPage = 0
+    @State private var isAnimating = false
 
     private let pages = OnboardingPage.allPages
 
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: [Color(.systemBackground), Color(.systemGray6)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            // iOS 26 Liquid Glass background
+            backgroundGradient
 
             VStack(spacing: 0) {
                 // Page content
                 TabView(selection: $currentPage) {
                     ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
-                        OnboardingPageView(page: page)
+                        OnboardingPageView(page: page, isActive: index == currentPage)
                             .tag(index)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.easeInOut, value: currentPage)
+                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: currentPage)
 
-                // Bottom controls
+                // Bottom controls with glass card
                 VStack(spacing: 20) {
                     // Page indicators
-                    HStack(spacing: 8) {
+                    HStack(spacing: 10) {
                         ForEach(0..<pages.count, id: \.self) { index in
-                            Circle()
-                                .fill(index == currentPage ? Color.accentColor : Color.gray.opacity(0.3))
-                                .frame(width: 8, height: 8)
-                                .scaleEffect(index == currentPage ? 1.2 : 1.0)
-                                .animation(.spring(response: 0.3), value: currentPage)
+                            Capsule()
+                                .fill(index == currentPage ? Color.accentColor : Color.secondary.opacity(0.3))
+                                .frame(width: index == currentPage ? 24 : 8, height: 8)
+                                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: currentPage)
                         }
                     }
-                    .padding(.top, 20)
+                    .padding(.top, 24)
 
-                    // Action button
+                    // Action button with glass effect
                     Button(action: handleButtonTap) {
-                        Text(buttonTitle)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.accentColor)
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        HStack(spacing: 10) {
+                            Text(buttonTitle)
+                                .fontWeight(.semibold)
+
+                            Image(systemName: currentPage == pages.count - 1 ? "checkmark" : "arrow.right")
+                                .font(.body.weight(.semibold))
+                                .contentTransition(.symbolEffect(.replace))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background {
+                            LinearGradient(
+                                colors: [.accentColor, .accentColor.opacity(0.8)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        }
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .shadow(color: .accentColor.opacity(0.3), radius: 12, y: 6)
                     }
+                    .sensoryFeedback(.impact(flexibility: .soft), trigger: currentPage)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 40)
+                }
+                .background {
+                    // Glass footer
+                    UnevenRoundedRectangle(topLeadingRadius: 32, topTrailingRadius: 32)
+                        .fill(.ultraThinMaterial)
+                        .ignoresSafeArea()
                 }
             }
         }
     }
 
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [
+                Color(.systemBackground),
+                Color(.systemGray6).opacity(0.5)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
+    }
+
     private var buttonTitle: String {
-        if currentPage == pages.count - 1 {
-            return "Get Started"
-        } else {
-            return "Continue"
-        }
+        currentPage == pages.count - 1 ? "Get Started" : "Continue"
     }
 
     private func handleButtonTap() {
         if currentPage < pages.count - 1 {
-            withAnimation {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                 currentPage += 1
             }
         } else {
-            // Complete onboarding
-            withAnimation {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
                 hasCompletedOnboarding = true
             }
         }
@@ -90,14 +112,14 @@ struct OnboardingView: View {
 
 // MARK: - Onboarding Page Model
 
-struct OnboardingPage {
+struct OnboardingPage: Sendable {
     let icon: String
     let iconColor: Color
     let title: String
     let subtitle: String
     let features: [Feature]
 
-    struct Feature {
+    struct Feature: Sendable {
         let icon: String
         let text: String
     }
@@ -165,16 +187,19 @@ struct OnboardingPage {
 
 struct OnboardingPageView: View {
     let page: OnboardingPage
+    let isActive: Bool
 
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
 
-            // Icon
+            // Icon with symbol effect
             Image(systemName: page.icon)
                 .font(.system(size: 80))
-                .foregroundStyle(page.iconColor)
+                .foregroundStyle(page.iconColor.gradient)
                 .symbolRenderingMode(.hierarchical)
+                .symbolEffect(.pulse.wholeSymbol, options: .repeating, isActive: isActive)
+                .shadow(color: page.iconColor.opacity(0.3), radius: 20, y: 10)
 
             // Title & Subtitle
             VStack(spacing: 12) {
@@ -185,31 +210,54 @@ struct OnboardingPageView: View {
 
                 Text(page.subtitle)
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
             }
 
-            // Features
-            VStack(alignment: .leading, spacing: 16) {
+            // Features with glass cards
+            VStack(spacing: 12) {
                 ForEach(page.features, id: \.text) { feature in
-                    HStack(spacing: 16) {
-                        Image(systemName: feature.icon)
-                            .font(.title3)
-                            .foregroundColor(.accentColor)
-                            .frame(width: 28)
-
-                        Text(feature.text)
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                    }
+                    FeatureRow(feature: feature)
                 }
             }
-            .padding(.horizontal, 40)
+            .padding(.horizontal, 24)
             .padding(.top, 8)
 
             Spacer()
             Spacer()
+        }
+    }
+}
+
+// MARK: - Feature Row
+
+struct FeatureRow: View {
+    let feature: OnboardingPage.Feature
+
+    var body: some View {
+        HStack(spacing: 14) {
+            // Icon with gradient circle
+            Circle()
+                .fill(Color.accentColor.opacity(0.15))
+                .frame(width: 36, height: 36)
+                .overlay {
+                    Image(systemName: feature.icon)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color.accentColor)
+                }
+
+            Text(feature.text)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(.ultraThinMaterial)
         }
     }
 }

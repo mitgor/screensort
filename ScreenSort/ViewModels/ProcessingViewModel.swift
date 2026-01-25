@@ -1,35 +1,36 @@
 import SwiftUI
 import Photos
-import Combine
+import Observation
 
 @MainActor
-class ProcessingViewModel: ObservableObject {
+@Observable
+final class ProcessingViewModel {
 
-    // MARK: - Published State
+    // MARK: - Observable State
 
-    @Published var photoPermissionStatus: PHAuthorizationStatus = .notDetermined
-    @Published var isYouTubeAuthenticated = false
-    @Published var isProcessing = false
-    @Published var processingProgress: (current: Int, total: Int) = (0, 0)
-    @Published var lastError: String?
-    @Published var results: [ProcessingResultItem] = []
-    @Published var googleDocURL: String?
-    @Published var googleDocsStatus: String?
-    @Published var googleDocsError: String?
+    var photoPermissionStatus: PHAuthorizationStatus = .notDetermined
+    var isYouTubeAuthenticated = false
+    var isProcessing = false
+    var processingProgress: (current: Int, total: Int) = (0, 0)
+    var lastError: String?
+    var results: [ProcessingResultItem] = []
+    var googleDocURL: String?
+    var googleDocsStatus: String?
+    var googleDocsError: String?
 
     // MARK: - Services
 
-    nonisolated(unsafe) private let photoService: PhotoLibraryServiceProtocol
-    nonisolated(unsafe) private let ocrService: OCRServiceProtocol
-    nonisolated(unsafe) private let classifier: ScreenshotClassifierProtocol
-    nonisolated(unsafe) private let musicExtractor: MusicExtractorProtocol
-    nonisolated(unsafe) private let movieExtractor: MovieExtractorProtocol
-    nonisolated(unsafe) private let bookExtractor: BookExtractorProtocol
-    nonisolated(unsafe) private let youtubeService: YouTubeServiceProtocol
-    nonisolated(unsafe) private let tmdbService: TMDbServiceProtocol
-    nonisolated(unsafe) private let googleBooksService: GoogleBooksServiceProtocol
-    nonisolated(unsafe) private let authService: AuthServiceProtocol
-    nonisolated(unsafe) private let googleDocsService: GoogleDocsServiceProtocol
+    private let photoService: PhotoLibraryServiceProtocol
+    private let ocrService: OCRServiceProtocol
+    private let classifier: ScreenshotClassifierProtocol
+    private let musicExtractor: MusicExtractorProtocol
+    private let movieExtractor: MovieExtractorProtocol
+    private let bookExtractor: BookExtractorProtocol
+    private let youtubeService: YouTubeServiceProtocol
+    private let tmdbService: TMDbServiceProtocol
+    private let googleBooksService: GoogleBooksServiceProtocol
+    private let authService: AuthServiceProtocol
+    private let googleDocsService: GoogleDocsServiceProtocol
 
     // MARK: - Config
 
@@ -38,16 +39,16 @@ class ProcessingViewModel: ObservableObject {
 
     // MARK: - Init
 
-    nonisolated init(
+    init(
         photoService: PhotoLibraryServiceProtocol,
-        ocrService: OCRServiceProtocol = OCRService(),
-        classifier: ScreenshotClassifierProtocol = ScreenshotClassifier(),
+        ocrService: OCRServiceProtocol,
+        classifier: ScreenshotClassifierProtocol,
         musicExtractor: MusicExtractorProtocol,
-        movieExtractor: MovieExtractorProtocol = MovieExtractor(),
-        bookExtractor: BookExtractorProtocol = BookExtractor(),
+        movieExtractor: MovieExtractorProtocol,
+        bookExtractor: BookExtractorProtocol,
         youtubeService: YouTubeServiceProtocol,
-        tmdbService: TMDbServiceProtocol = TMDbService(),
-        googleBooksService: GoogleBooksServiceProtocol = GoogleBooksService(),
+        tmdbService: TMDbServiceProtocol,
+        googleBooksService: GoogleBooksServiceProtocol,
         authService: AuthServiceProtocol,
         googleDocsService: GoogleDocsServiceProtocol
     ) {
@@ -64,6 +65,34 @@ class ProcessingViewModel: ObservableObject {
         self.googleDocsService = googleDocsService
     }
 
+    /// Convenience initializer with default production services.
+    convenience init() {
+        let authService = AuthService()
+        self.init(
+            photoService: PhotoLibraryService(),
+            ocrService: OCRService(),
+            classifier: ScreenshotClassifier(),
+            musicExtractor: MusicExtractor(),
+            movieExtractor: MovieExtractor(),
+            bookExtractor: BookExtractor(),
+            youtubeService: YouTubeService(authService: authService),
+            tmdbService: TMDbService(),
+            googleBooksService: GoogleBooksService(authService: authService),
+            authService: authService,
+            googleDocsService: GoogleDocsService(authService: authService)
+        )
+    }
+
+    // MARK: - Computed Properties
+
+    var hasPhotoAccess: Bool {
+        photoPermissionStatus == .authorized || photoPermissionStatus == .limited
+    }
+
+    var canProcess: Bool {
+        hasPhotoAccess && isYouTubeAuthenticated && !isProcessing
+    }
+
     // MARK: - Setup
 
     func checkInitialState() {
@@ -76,10 +105,6 @@ class ProcessingViewModel: ObservableObject {
 
     func requestPhotoAccess() async {
         photoPermissionStatus = await photoService.requestAuthorization()
-    }
-
-    var hasPhotoAccess: Bool {
-        photoPermissionStatus == .authorized || photoPermissionStatus == .limited
     }
 
     // MARK: - YouTube Auth
@@ -121,8 +146,8 @@ class ProcessingViewModel: ObservableObject {
             // 1. Fetch screenshots (excluding already processed ones)
             let allScreenshots = try await photoService.fetchScreenshots()
             let screenshots = allScreenshots.filter { asset in
-                let existingCaption = photoService.getCaption(for: asset)
-                return existingCaption == nil || !existingCaption!.hasPrefix(captionPrefix)
+                guard let caption = photoService.getCaption(for: asset) else { return true }
+                return !caption.hasPrefix(captionPrefix)
             }
 
             processingProgress = (0, screenshots.count)
@@ -136,15 +161,19 @@ class ProcessingViewModel: ObservableObject {
             // 2. Get/create YouTube playlist (for music)
             let playlistId = try await youtubeService.getOrCreatePlaylist(named: playlistName)
 
-            // 3. Ensure all albums exist
-            for type in ScreenshotType.allCases {
-                _ = try await photoService.createAlbumIfNeeded(named: type.albumName)
+            // 3. Create all albums in parallel using TaskGroup
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for type in ScreenshotType.allCases {
+                    group.addTask { [photoService] in
+                        _ = try await photoService.createAlbumIfNeeded(named: type.albumName)
+                    }
+                }
+                try await group.waitForAll()
             }
 
             // 4. Process each screenshot
             for (index, asset) in screenshots.enumerated() {
                 processingProgress = (index + 1, screenshots.count)
-
                 let result = await processScreenshot(asset: asset, playlistId: playlistId)
                 results.append(result)
             }
@@ -170,17 +199,17 @@ class ProcessingViewModel: ObservableObject {
             let screenshotType = classifier.classify(textObservations: observations)
 
             // 3. Route to appropriate handler
-            switch screenshotType {
+            return switch screenshotType {
             case .music:
-                return await processMusicScreenshot(asset: asset, observations: observations, playlistId: playlistId)
+                await processMusicScreenshot(asset: asset, observations: observations, playlistId: playlistId)
             case .movie:
-                return await processMovieScreenshot(asset: asset, observations: observations)
+                await processMovieScreenshot(asset: asset, observations: observations)
             case .book:
-                return await processBookScreenshot(asset: asset, observations: observations)
+                await processBookScreenshot(asset: asset, observations: observations)
             case .meme:
-                return await processMemeScreenshot(asset: asset)
+                await processMemeScreenshot(asset: asset)
             case .unknown:
-                return await processUnknownScreenshot(asset: asset)
+                await processUnknownScreenshot(asset: asset)
             }
 
         } catch {
@@ -196,40 +225,28 @@ class ProcessingViewModel: ObservableObject {
         playlistId: String
     ) async -> ProcessingResultItem {
         do {
-            // Extract metadata
             let metadata = try await musicExtractor.extractMusicMetadata(from: observations)
 
-            // Search YouTube
             let videoId = try await youtubeService.searchForSong(
                 title: metadata.songTitle,
                 artist: metadata.artist
             )
 
-            // Add to playlist
             try await youtubeService.addToPlaylist(videoId: videoId, playlistId: playlistId)
 
-            // Build YouTube link
             let youtubeLink = "https://youtube.com/watch?v=\(videoId)"
 
-            // Log to Google Docs
             await logToGoogleDocs(
                 type: .music,
                 title: metadata.songTitle,
                 creator: metadata.artist,
                 serviceLink: youtubeLink,
-                capturedAt: asset.creationDate ?? Date()
+                capturedAt: asset.creationDate ?? .now
             )
 
-            // Move to album
             try await photoService.addAsset(asset, toAlbum: ScreenshotType.music.albumName)
 
-            // Set caption
-            let caption = buildCaption(
-                type: "Music",
-                title: metadata.songTitle,
-                creator: metadata.artist,
-                status: "Added to YouTube"
-            )
+            let caption = buildCaption(type: "Music", title: metadata.songTitle, creator: metadata.artist, status: "Added to YouTube")
             try? await photoService.setCaption(caption, for: asset)
 
             return ProcessingResultItem(
@@ -254,36 +271,23 @@ class ProcessingViewModel: ObservableObject {
         observations: [TextObservation]
     ) async -> ProcessingResultItem {
         do {
-            // Extract metadata
             let metadata = try await movieExtractor.extractMovieMetadata(from: observations)
 
-            // Try to get TMDb link (optional)
             var serviceLink: String?
             if tmdbService.isConfigured {
-                do {
-                    let tmdbResult = try await tmdbService.searchMovie(
-                        title: metadata.title,
-                        year: metadata.year
-                    )
-                    serviceLink = tmdbResult.tmdbURL
-                } catch {
-                    // TMDb is optional - continue without it
-                }
+                serviceLink = try? await tmdbService.searchMovie(title: metadata.title, year: metadata.year).tmdbURL
             }
 
-            // Log to Google Docs
             await logToGoogleDocs(
                 type: .movie,
                 title: metadata.title,
                 creator: metadata.creator,
                 serviceLink: serviceLink,
-                capturedAt: asset.creationDate ?? Date()
+                capturedAt: asset.creationDate ?? .now
             )
 
-            // Move to album
             try await photoService.addAsset(asset, toAlbum: ScreenshotType.movie.albumName)
 
-            // Set caption
             let caption = buildCaption(
                 type: "Movie",
                 title: metadata.title,
@@ -314,34 +318,20 @@ class ProcessingViewModel: ObservableObject {
         observations: [TextObservation]
     ) async -> ProcessingResultItem {
         do {
-            // Extract metadata
             let metadata = try await bookExtractor.extractBookMetadata(from: observations)
 
-            // Try to get Google Books link
-            var serviceLink: String?
-            do {
-                let booksResult = try await googleBooksService.searchBook(
-                    title: metadata.title,
-                    author: metadata.author
-                )
-                serviceLink = booksResult.infoLink
-            } catch {
-                // Google Books is optional - continue without it
-            }
+            let serviceLink = try? await googleBooksService.searchBook(title: metadata.title, author: metadata.author).infoLink
 
-            // Log to Google Docs
             await logToGoogleDocs(
                 type: .book,
                 title: metadata.title,
                 creator: metadata.creator,
                 serviceLink: serviceLink,
-                capturedAt: asset.creationDate ?? Date()
+                capturedAt: asset.creationDate ?? .now
             )
 
-            // Move to album
             try await photoService.addAsset(asset, toAlbum: ScreenshotType.book.albumName)
 
-            // Set caption
             let caption = buildCaption(
                 type: "Book",
                 title: metadata.title,
@@ -368,16 +358,10 @@ class ProcessingViewModel: ObservableObject {
     // MARK: - Meme Processing
 
     private func processMemeScreenshot(asset: PHAsset) async -> ProcessingResultItem {
-        // Memes just get moved to album - no extraction or logging
         do {
             try await photoService.addAsset(asset, toAlbum: ScreenshotType.meme.albumName)
 
-            let caption = buildCaption(
-                type: "Meme",
-                title: nil,
-                creator: nil,
-                status: "Saved to album"
-            )
+            let caption = buildCaption(type: "Meme", title: nil, creator: nil, status: "Saved to album")
             try? await photoService.setCaption(caption, for: asset)
 
             return ProcessingResultItem(
@@ -408,12 +392,7 @@ class ProcessingViewModel: ObservableObject {
         do {
             try await photoService.addAsset(asset, toAlbum: ScreenshotType.unknown.albumName)
 
-            let caption = buildCaption(
-                type: "Unknown",
-                title: nil,
-                creator: nil,
-                status: "Could not classify"
-            )
+            let caption = buildCaption(type: "Unknown", title: nil, creator: nil, status: "Could not classify")
             try? await photoService.setCaption(caption, for: asset)
 
             return ProcessingResultItem(
@@ -445,7 +424,6 @@ class ProcessingViewModel: ObservableObject {
         contentType: ScreenshotType,
         error: Error
     ) async -> ProcessingResultItem {
-        // Move to flagged album
         try? await photoService.addAsset(asset, toAlbum: ScreenshotType.unknown.albumName)
 
         let caption = buildCaption(
@@ -470,12 +448,7 @@ class ProcessingViewModel: ObservableObject {
     private func handleProcessingError(asset: PHAsset, error: Error) async -> ProcessingResultItem {
         try? await photoService.addAsset(asset, toAlbum: ScreenshotType.unknown.albumName)
 
-        let caption = buildCaption(
-            type: "Unknown",
-            title: nil,
-            creator: nil,
-            status: "Error: \(error.localizedDescription)"
-        )
+        let caption = buildCaption(type: "Unknown", title: nil, creator: nil, status: "Error: \(error.localizedDescription)")
         try? await photoService.setCaption(caption, for: asset)
 
         return ProcessingResultItem(
@@ -508,15 +481,11 @@ class ProcessingViewModel: ObservableObject {
 
         do {
             let wasAdded = try await googleDocsService.appendEntry(logEntry)
-            await MainActor.run {
-                googleDocURL = googleDocsService.documentURL
-                googleDocsStatus = wasAdded ? "Logged to Google Doc" : "Already in Google Doc"
-                googleDocsError = nil
-            }
+            googleDocURL = googleDocsService.documentURL
+            googleDocsStatus = wasAdded ? "Logged to Google Doc" : "Already in Google Doc"
+            googleDocsError = nil
         } catch {
-            await MainActor.run {
-                googleDocsError = "Google Docs: \(error.localizedDescription)"
-            }
+            googleDocsError = "Google Docs: \(error.localizedDescription)"
         }
     }
 
@@ -524,22 +493,16 @@ class ProcessingViewModel: ObservableObject {
 
     private func buildCaption(type: String, title: String?, creator: String?, status: String) -> String {
         var parts = ["\(captionPrefix): \(type)"]
-
-        if let title = title {
-            parts.append("Title: \(title)")
-        }
-        if let creator = creator {
-            parts.append("Creator: \(creator)")
-        }
+        if let title { parts.append("Title: \(title)") }
+        if let creator { parts.append("Creator: \(creator)") }
         parts.append("Status: \(status)")
-
         return parts.joined(separator: " | ")
     }
 }
 
 // MARK: - Result Item
 
-struct ProcessingResultItem: Identifiable {
+struct ProcessingResultItem: Identifiable, Sendable {
     let id = UUID()
     let assetId: String
     let status: Status
@@ -549,7 +512,7 @@ struct ProcessingResultItem: Identifiable {
     let message: String
     let serviceLink: String?
 
-    enum Status {
+    enum Status: Sendable {
         case success
         case flagged
         case failed

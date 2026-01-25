@@ -2,23 +2,7 @@ import SwiftUI
 import Photos
 
 struct ProcessingView: View {
-    @StateObject private var viewModel: ProcessingViewModel
-
-    init(viewModel: ProcessingViewModel? = nil) {
-        _viewModel = StateObject(wrappedValue: viewModel ?? ProcessingViewModel(
-            photoService: PhotoLibraryService(),
-            ocrService: OCRService(),
-            classifier: ScreenshotClassifier(),
-            musicExtractor: MusicExtractor(),
-            movieExtractor: MovieExtractor(),
-            bookExtractor: BookExtractor(),
-            youtubeService: YouTubeService(),
-            tmdbService: TMDbService(),
-            googleBooksService: GoogleBooksService(),
-            authService: AuthService(),
-            googleDocsService: GoogleDocsService()
-        ))
-    }
+    @State private var viewModel = ProcessingViewModel()
 
     var body: some View {
         NavigationStack {

@@ -156,7 +156,7 @@ enum ClassificationConfig {
 ///     // Handle other types
 /// }
 /// ```
-final class ScreenshotClassifier: ScreenshotClassifierProtocol {
+final class ScreenshotClassifier: ScreenshotClassifierProtocol, Sendable {
 
     // MARK: - Public API
 
@@ -235,7 +235,7 @@ final class ScreenshotClassifier: ScreenshotClassifierProtocol {
 ///
 /// Use this for debugging or when you need more information about
 /// the classification decision.
-struct ClassificationResult {
+struct ClassificationResult: Sendable {
     /// The detected screenshot type.
     let type: ScreenshotType
 

@@ -2,7 +2,8 @@ import Foundation
 import AuthenticationServices
 import CryptoKit
 
-class AuthService: NSObject, AuthServiceProtocol, ASWebAuthenticationPresentationContextProviding {
+@MainActor
+final class AuthService: NSObject, AuthServiceProtocol, ASWebAuthenticationPresentationContextProviding {
 
     private let keychainService: KeychainService
     private let clientId: String
@@ -90,10 +91,7 @@ class AuthService: NSObject, AuthServiceProtocol, ASWebAuthenticationPresentatio
 
             session.presentationContextProvider = self
             session.prefersEphemeralWebBrowserSession = false
-
-            DispatchQueue.main.async {
-                session.start()
-            }
+            session.start()
         }
 
         // Extract authorization code
@@ -215,7 +213,17 @@ class AuthService: NSObject, AuthServiceProtocol, ASWebAuthenticationPresentatio
     // MARK: - ASWebAuthenticationPresentationContextProviding
 
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return ASPresentationAnchor()
+        // Get the first active window scene's key window
+        let windowScene = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }
+
+        if let scene = windowScene, let window = scene.windows.first(where: { $0.isKeyWindow }) {
+            return window
+        }
+
+        // Fallback: return first available window
+        return windowScene?.windows.first ?? ASPresentationAnchor(windowScene: windowScene!)
     }
 }
 

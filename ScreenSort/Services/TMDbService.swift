@@ -8,7 +8,7 @@
 import Foundation
 
 /// Service for searching movies on TMDb
-final class TMDbService: TMDbServiceProtocol {
+final class TMDbService: TMDbServiceProtocol, Sendable {
 
     // MARK: - Properties
 

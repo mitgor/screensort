@@ -50,7 +50,13 @@ class AuthService: NSObject, AuthServiceProtocol, ASWebAuthenticationPresentatio
         codeVerifier = generateCodeVerifier()
         let codeChallenge = generateCodeChallenge(from: codeVerifier!)
 
-        let scope = "https://www.googleapis.com/auth/youtube"
+        // Request YouTube + Google Docs + Drive scopes
+        let scopes = [
+            "https://www.googleapis.com/auth/youtube",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/drive.file"
+        ]
+        let scope = scopes.joined(separator: " ")
         var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
         components.queryItems = [
             URLQueryItem(name: "client_id", value: clientId),

@@ -1,5 +1,7 @@
 import Photos
 import Foundation
+import ImageIO
+import UniformTypeIdentifiers
 
 @MainActor
 class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol {
@@ -101,24 +103,27 @@ class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol {
         }
     }
 
-    // MARK: - Caption Management (undocumented API - personal use only)
+    // MARK: - Caption Management (stored in UserDefaults)
+
+    private static let captionStorageKey = "ScreenSort.ProcessedCaptions"
 
     func setCaption(_ caption: String, for asset: PHAsset) async throws {
-        do {
-            try await PHPhotoLibrary.shared().performChanges {
-                let request = PHAssetChangeRequest(for: asset)
-                // Using undocumented accessibilityDescription property
-                // This sets the caption visible in Photos app
-                request.setValue(caption, forKey: "accessibilityDescription")
-            }
-        } catch {
-            throw PhotoLibraryError.captionUpdateFailed(reason: error.localizedDescription)
-        }
+        var captions = Self.loadCaptions()
+        captions[asset.localIdentifier] = caption
+        Self.saveCaptions(captions)
     }
 
     func getCaption(for asset: PHAsset) -> String? {
-        // Using undocumented accessibilityDescription property
-        return asset.value(forKey: "accessibilityDescription") as? String
+        let captions = Self.loadCaptions()
+        return captions[asset.localIdentifier]
+    }
+
+    private static func loadCaptions() -> [String: String] {
+        UserDefaults.standard.dictionary(forKey: captionStorageKey) as? [String: String] ?? [:]
+    }
+
+    private static func saveCaptions(_ captions: [String: String]) {
+        UserDefaults.standard.set(captions, forKey: captionStorageKey)
     }
 
     // MARK: - Photo Library Change Observation

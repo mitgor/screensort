@@ -123,6 +123,91 @@ enum MusicExtractionPrompt {
     }
 }
 
+// MARK: - Fallback Extractor
+
+/// Fallback extraction using pattern matching when AI is unavailable.
+///
+/// This is used when Apple Intelligence refuses to process content
+/// (e.g., due to safety filters) or when the model is unavailable.
+enum FallbackExtractor {
+
+    /// UI elements and noise to filter out
+    private static let noisePatterns: Set<String> = [
+        "play", "pause", "shuffle", "repeat", "share", "add to",
+        "library", "lyrics", "queue", "airplay", "cast",
+        "am", "pm", "battery", "%", "wifi", "cellular",
+        "apple music", "spotify", "youtube music", "soundcloud",
+        "now playing", "up next", "playing from"
+    ]
+
+    /// Attempts to extract music metadata using pattern matching.
+    ///
+    /// - Parameter observations: The OCR text observations.
+    /// - Returns: Extracted metadata if successful.
+    static func extract(from observations: [TextObservation]) -> MusicMetadata? {
+        // Filter out noise and get clean text lines
+        let cleanLines = observations
+            .map { $0.text.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { line in
+                let lower = line.lowercased()
+                // Skip short lines, timestamps, and UI elements
+                guard line.count >= 2 else { return false }
+                guard !lower.allSatisfy({ $0.isNumber || $0 == ":" || $0 == "." }) else { return false }
+                for noise in noisePatterns {
+                    if lower == noise || lower.hasPrefix(noise + " ") { return false }
+                }
+                return true
+            }
+
+        guard cleanLines.count >= 2 else { return nil }
+
+        // Strategy 1: Look for "Artist - Title" or "Title - Artist" pattern
+        for line in cleanLines {
+            if let result = parseArtistTitleLine(line) {
+                return result
+            }
+        }
+
+        // Strategy 2: Assume first two substantial lines are title and artist
+        // (common layout in music apps: title on top, artist below)
+        let substantialLines = cleanLines.filter { $0.count >= 3 }
+        guard substantialLines.count >= 2 else { return nil }
+
+        return MusicMetadata(
+            songTitle: substantialLines[0],
+            artist: substantialLines[1],
+            confidenceScore: 0.6,  // Lower confidence for heuristic extraction
+            rawText: cleanLines
+        )
+    }
+
+    /// Parses a line containing both artist and title separated by " - ".
+    private static func parseArtistTitleLine(_ line: String) -> MusicMetadata? {
+        // Common separators: " - ", " — ", " – "
+        let separators = [" - ", " — ", " – ", " − "]
+
+        for separator in separators {
+            let parts = line.components(separatedBy: separator)
+            if parts.count == 2 {
+                let first = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                let second = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+
+                guard first.count >= 2, second.count >= 2 else { continue }
+
+                // Typically: "Artist - Title" but could be reversed
+                return MusicMetadata(
+                    songTitle: second,
+                    artist: first,
+                    confidenceScore: 0.7,
+                    rawText: [line]
+                )
+            }
+        }
+
+        return nil
+    }
+}
+
 // MARK: - Music Extractor
 
 /// Extracts song title and artist from music screenshots using Apple Intelligence.
@@ -202,17 +287,35 @@ final class MusicExtractor: MusicExtractorProtocol {
             throw MusicExtractionError.songTitleNotFound
         }
 
-        // Step 3: Extract with Apple Intelligence
-        let aiResponse = try await performAIExtraction(text: combinedText)
+        // Step 3: Try Apple Intelligence first, fall back to pattern matching
+        do {
+            let aiResponse = try await performAIExtraction(text: combinedText)
 
-        // Step 4: Validate the extraction result
-        try validateExtractionResult(aiResponse)
+            // Step 4: Validate the extraction result
+            try validateExtractionResult(aiResponse)
 
-        // Step 5: Build and validate final metadata
-        let metadata = buildMetadata(from: aiResponse, rawText: observations.map { $0.text })
-        try validateConfidence(metadata)
+            // Step 5: Build and validate final metadata
+            let metadata = buildMetadata(from: aiResponse, rawText: observations.map { $0.text })
+            try validateConfidence(metadata)
 
-        return metadata
+            return metadata
+
+        } catch {
+            // Check if this is a guardrail/safety error - use fallback
+            let errorString = String(describing: error)
+            if errorString.contains("unsafe") ||
+               errorString.contains("guardrail") ||
+               errorString.contains("Guardrail") ||
+               errorString.contains("safety") {
+                // Fall back to pattern-based extraction
+                if let fallbackResult = FallbackExtractor.extract(from: observations) {
+                    return fallbackResult
+                }
+            }
+
+            // Re-throw original error if fallback also failed
+            throw error
+        }
     }
 
     // MARK: - Private: Validation Steps

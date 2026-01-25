@@ -18,7 +18,7 @@ enum GoogleDocsError: LocalizedError, RecoverableError {
     var errorDescription: String? {
         switch self {
         case .notAuthenticated:
-            return "Not authenticated with Google"
+            return "Google Docs access not granted. Please sign out and sign in again."
         case .documentNotFound:
             return "ScreenSort log document not found"
         case .createFailed(let reason):
@@ -135,8 +135,8 @@ class GoogleDocsService: GoogleDocsServiceProtocol {
     }
 
     private func findExistingDocument(accessToken: String) async throws -> String? {
+        // Note: URLQueryItem handles encoding, so don't pre-encode the query
         let query = "name='\(documentTitle)' and mimeType='application/vnd.google-apps.document' and trashed=false"
-            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
 
         var components = URLComponents(string: driveBaseURL)!
         components.queryItems = [
@@ -149,6 +149,10 @@ class GoogleDocsService: GoogleDocsServiceProtocol {
             headers: ["Authorization": "Bearer \(accessToken)"],
             cachePolicy: .reloadIgnoringLocalCacheData
         )
+
+        if response.statusCode == 401 || response.statusCode == 403 {
+            throw GoogleDocsError.notAuthenticated
+        }
 
         guard (200...299).contains(response.statusCode) else {
             throw GoogleDocsError.networkError(reason: "HTTP \(response.statusCode)")
@@ -172,6 +176,10 @@ class GoogleDocsService: GoogleDocsServiceProtocol {
             body: bodyData,
             headers: ["Authorization": "Bearer \(accessToken)"]
         )
+
+        if response.statusCode == 401 || response.statusCode == 403 {
+            throw GoogleDocsError.notAuthenticated
+        }
 
         guard (200...299).contains(response.statusCode) else {
             let error = String(data: data, encoding: .utf8) ?? "Unknown"
@@ -228,6 +236,10 @@ class GoogleDocsService: GoogleDocsServiceProtocol {
             headers: ["Authorization": "Bearer \(accessToken)"]
         )
 
+        if response.statusCode == 401 || response.statusCode == 403 {
+            throw GoogleDocsError.notAuthenticated
+        }
+
         guard (200...299).contains(response.statusCode) else {
             let error = String(data: data, encoding: .utf8) ?? "Unknown"
             throw GoogleDocsError.updateFailed(reason: error)
@@ -248,6 +260,10 @@ class GoogleDocsService: GoogleDocsServiceProtocol {
             headers: ["Authorization": "Bearer \(accessToken)"],
             cachePolicy: .reloadIgnoringLocalCacheData
         )
+
+        if docResponse.statusCode == 401 || docResponse.statusCode == 403 {
+            throw GoogleDocsError.notAuthenticated
+        }
 
         guard (200...299).contains(docResponse.statusCode) else {
             throw GoogleDocsError.networkError(reason: "HTTP \(docResponse.statusCode)")
@@ -283,6 +299,10 @@ class GoogleDocsService: GoogleDocsServiceProtocol {
             body: bodyData,
             headers: ["Authorization": "Bearer \(accessToken)"]
         )
+
+        if response.statusCode == 401 || response.statusCode == 403 {
+            throw GoogleDocsError.notAuthenticated
+        }
 
         guard (200...299).contains(response.statusCode) else {
             let error = String(data: data, encoding: .utf8) ?? "Unknown"

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+    Privacy Manifest for ScreenSort
+
+    Required Reason APIs Used:
+    - None currently (Phase 0)
+    - UserDefaults will be added in Phase 1 for settings
+
+    Last reviewed: Phase 0 planning
+    -->
+
+    <!-- No tracking domains - personal use app -->
+    <key>NSPrivacyTrackingDomains</key>
+    <array>
+    </array>
+
+    <!-- No data collection - all processing on-device -->
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array>
+    </array>
+
+    <!-- No tracking - personal use app -->
+    <key>NSPrivacyTracking</key>
+    <false/>
+
+    <!-- Required reason APIs - none currently used
+         Uncomment when UserDefaults is added in Phase 1:
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+    -->
+</dict>
+</plist>

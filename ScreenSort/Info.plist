@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.screensort.oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.screensort</string>
+			</array>
+		</dict>
+	</array>
+	<key>HARDCOVER_TOKEN</key>
+	<string>$(HARDCOVER_TOKEN)</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>ScreenSort organizes your processed screenshots into dedicated albums ("Processed" for successful extractions, "Flagged" for review). Only write access is requested - the app never reads or modifies your existing photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ScreenSort scans your photo library to find screenshots of music, movies, and books, then automatically extracts information and adds it to your playlists and watchlists. Photos are processed on-device and never uploaded.</string>
+	<key>TMDB_BEARER_TOKEN</key>
+	<string>$(TMDB_BEARER_TOKEN)</string>
+	<key>YOUTUBE_API_KEY</key>
+	<string>$(YOUTUBE_API_KEY)</string>
+	<key>YOUTUBE_CLIENT_ID</key>
+	<string>$(YOUTUBE_CLIENT_ID)</string>
+</dict>
+</plist>

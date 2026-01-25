@@ -7,8 +7,14 @@ struct ProcessingView: View {
     init(viewModel: ProcessingViewModel? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel ?? ProcessingViewModel(
             photoService: PhotoLibraryService(),
-            extractor: MusicExtractor(),
+            ocrService: OCRService(),
+            classifier: ScreenshotClassifier(),
+            musicExtractor: MusicExtractor(),
+            movieExtractor: MovieExtractor(),
+            bookExtractor: BookExtractor(),
             youtubeService: YouTubeService(),
+            tmdbService: TMDbService(),
+            googleBooksService: GoogleBooksService(),
             authService: AuthService(),
             googleDocsService: GoogleDocsService()
         ))
@@ -46,10 +52,8 @@ struct ProcessingView: View {
                         resultsSection
                     }
 
-                    // Google Doc Link
-                    if let docURL = viewModel.googleDocURL {
-                        googleDocSection(url: docURL)
-                    }
+                    // Google Doc Section (always show after processing to display status/errors)
+                    googleDocSection
                 }
                 .padding()
             }
@@ -200,32 +204,133 @@ struct ProcessingView: View {
     @ViewBuilder
     private var resultsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Results")
-                .font(.headline)
+            HStack {
+                Text("Results")
+                    .font(.headline)
+
+                Spacer()
+
+                // Summary badges
+                resultsSummary
+            }
 
             ForEach(viewModel.results) { result in
-                HStack {
-                    Image(systemName: resultIcon(for: result.status))
-                        .foregroundColor(resultColor(for: result.status))
-
-                    VStack(alignment: .leading) {
-                        if let title = result.songTitle, let artist = result.artist {
-                            Text("\(title) - \(artist)")
-                                .font(.subheadline)
-                        }
-                        Text(result.message)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-
-                    Spacer()
-                }
-                .padding(.vertical, 4)
+                resultRow(result)
             }
         }
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(10)
+    }
+
+    @ViewBuilder
+    private var resultsSummary: some View {
+        let grouped = Dictionary(grouping: viewModel.results) { $0.contentType }
+
+        HStack(spacing: 8) {
+            ForEach(ScreenshotType.allCases, id: \.self) { type in
+                if let count = grouped[type]?.count, count > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: type.iconName)
+                            .font(.caption)
+                        Text("\(count)")
+                            .font(.caption)
+                    }
+                    .foregroundColor(contentTypeColor(type))
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func resultRow(_ result: ProcessingResultItem) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            // Content type icon
+            Image(systemName: result.contentType.iconName)
+                .foregroundColor(contentTypeColor(result.contentType))
+                .frame(width: 24)
+
+            // Status icon
+            Image(systemName: resultIcon(for: result.status))
+                .foregroundColor(resultColor(for: result.status))
+                .frame(width: 20)
+
+            VStack(alignment: .leading, spacing: 2) {
+                // Title and creator
+                if let title = result.title {
+                    if let creator = result.creator {
+                        Text("\(title) - \(creator)")
+                            .font(.subheadline)
+                            .lineLimit(2)
+                    } else {
+                        Text(title)
+                            .font(.subheadline)
+                            .lineLimit(2)
+                    }
+                }
+
+                // Message
+                Text(result.message)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                // Service link if available
+                if let link = result.serviceLink, let url = URL(string: link) {
+                    Link(destination: url) {
+                        HStack(spacing: 4) {
+                            Image(systemName: serviceLinkIcon(for: result.contentType))
+                                .font(.caption)
+                            Text(serviceLinkLabel(for: result.contentType))
+                                .font(.caption)
+                        }
+                    }
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func contentTypeColor(_ type: ScreenshotType) -> Color {
+        switch type {
+        case .music:
+            return .pink
+        case .movie:
+            return .purple
+        case .book:
+            return .orange
+        case .meme:
+            return .green
+        case .unknown:
+            return .gray
+        }
+    }
+
+    private func serviceLinkIcon(for type: ScreenshotType) -> String {
+        switch type {
+        case .music:
+            return "play.rectangle.fill"
+        case .movie:
+            return "film"
+        case .book:
+            return "book.closed.fill"
+        case .meme, .unknown:
+            return "link"
+        }
+    }
+
+    private func serviceLinkLabel(for type: ScreenshotType) -> String {
+        switch type {
+        case .music:
+            return "Open in YouTube"
+        case .movie:
+            return "View on TMDb"
+        case .book:
+            return "View on Google Books"
+        case .meme, .unknown:
+            return "Open Link"
+        }
     }
 
     private func resultIcon(for status: ProcessingResultItem.Status) -> String {
@@ -247,24 +352,48 @@ struct ProcessingView: View {
     // MARK: - Google Doc Section
 
     @ViewBuilder
-    private func googleDocSection(url: String) -> some View {
-        HStack {
-            Image(systemName: "doc.text.fill")
-                .foregroundColor(.blue)
+    private var googleDocSection: some View {
+        // Only show if we have URL, status, or error to display
+        if viewModel.googleDocURL != nil || viewModel.googleDocsStatus != nil || viewModel.googleDocsError != nil {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: "doc.text.fill")
+                        .foregroundColor(viewModel.googleDocsError != nil ? .orange : .blue)
 
-            Text("Content Log")
-                .font(.subheadline)
+                    Text("Google Docs Log")
+                        .font(.subheadline)
 
-            Spacer()
+                    Spacer()
 
-            if let docURL = URL(string: url) {
-                Link("Open", destination: docURL)
-                    .font(.subheadline)
+                    if let url = viewModel.googleDocURL, let docURL = URL(string: url) {
+                        Link("Open", destination: docURL)
+                            .font(.subheadline)
+                    }
+                }
+
+                // Status message
+                if let status = viewModel.googleDocsStatus {
+                    Text(status)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                // Error message
+                if let error = viewModel.googleDocsError {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                            .font(.caption)
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                }
             }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(10)
         }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
     }
 }
 

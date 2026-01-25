@@ -114,6 +114,27 @@ enum ClassificationConfig {
         "publisher",
         "isbn"
     ]
+
+    /// Keywords indicating meme screenshots.
+    static let memeKeywords: Set<String> = [
+        // Meme generators and platforms
+        "imgflip",
+        "mematic",
+        "made with mematic",
+        "9gag",
+        "reddit",
+        "ifunny",
+        "memedroid",
+        "kapwing",
+
+        // Common meme elements
+        "nobody:",
+        "me:",
+        "when you",
+        "pov:",
+        "be like",
+        "change my mind"
+    ]
 }
 
 // MARK: - Screenshot Classifier
@@ -153,7 +174,8 @@ final class ScreenshotClassifier: ScreenshotClassifierProtocol {
         let scores: [(ScreenshotType, Int)] = [
             (.music, countKeywordMatches(in: combinedText, keywords: ClassificationConfig.musicKeywords)),
             (.movie, countKeywordMatches(in: combinedText, keywords: ClassificationConfig.movieKeywords)),
-            (.book, countKeywordMatches(in: combinedText, keywords: ClassificationConfig.bookKeywords))
+            (.book, countKeywordMatches(in: combinedText, keywords: ClassificationConfig.bookKeywords)),
+            (.meme, countKeywordMatches(in: combinedText, keywords: ClassificationConfig.memeKeywords))
         ]
 
         // Find the highest-scoring category
@@ -244,6 +266,7 @@ extension ScreenshotClassifier {
             .music: countKeywordMatches(in: combinedText, keywords: ClassificationConfig.musicKeywords),
             .movie: countKeywordMatches(in: combinedText, keywords: ClassificationConfig.movieKeywords),
             .book: countKeywordMatches(in: combinedText, keywords: ClassificationConfig.bookKeywords),
+            .meme: countKeywordMatches(in: combinedText, keywords: ClassificationConfig.memeKeywords),
             .unknown: 0
         ]
 

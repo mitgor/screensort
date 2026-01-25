@@ -217,6 +217,265 @@ extension MusicExtractionError {
     }
 }
 
+// MARK: - Movie Extraction Errors
+
+/// Errors from AI-powered movie metadata extraction.
+enum MovieExtractionError: Error, RecoverableError {
+    /// The screenshot does not appear to be from a movie/streaming app.
+    case notMovieScreenshot
+
+    /// Could not identify a movie title in the screenshot.
+    case movieTitleNotFound
+
+    /// Could not identify a director name in the screenshot.
+    case directorNotFound
+
+    /// Extraction confidence is below the required threshold.
+    case confidenceTooLow(score: Float, threshold: Float)
+
+    /// The AI model is not available on this device.
+    case modelUnavailable
+
+    /// The extraction result contained placeholder or invalid data.
+    case invalidExtractionResult(reason: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .notMovieScreenshot:
+            return "This does not appear to be a movie screenshot."
+        case .movieTitleNotFound:
+            return "Could not identify the movie title."
+        case .directorNotFound:
+            return "Could not identify the director."
+        case .confidenceTooLow(let score, let threshold):
+            let scorePercent = Int(score * 100)
+            let thresholdPercent = Int(threshold * 100)
+            return "Extraction confidence (\(scorePercent)%) is below the \(thresholdPercent)% threshold."
+        case .modelUnavailable:
+            return "Apple Intelligence is not available on this device."
+        case .invalidExtractionResult(let reason):
+            return "Invalid extraction result: \(reason)"
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .notMovieScreenshot:
+            return "Only screenshots from streaming apps (Netflix, Prime Video, etc.) are supported."
+        case .movieTitleNotFound, .directorNotFound:
+            return "Try a screenshot where the movie title is clearly visible."
+        case .confidenceTooLow:
+            return "Try a clearer screenshot with the movie title prominently displayed."
+        case .modelUnavailable:
+            return "This feature requires an iPhone 15 Pro or newer with iOS 18.1+."
+        case .invalidExtractionResult:
+            return "Try again with a different screenshot."
+        }
+    }
+
+    var isRetryable: Bool {
+        switch self {
+        case .modelUnavailable:
+            return false
+        case .notMovieScreenshot, .movieTitleNotFound, .directorNotFound,
+             .confidenceTooLow, .invalidExtractionResult:
+            return true
+        }
+    }
+}
+
+// MARK: - Book Extraction Errors
+
+/// Errors from AI-powered book metadata extraction.
+enum BookExtractionError: Error, RecoverableError {
+    /// The screenshot does not appear to be from a book app.
+    case notBookScreenshot
+
+    /// Could not identify a book title in the screenshot.
+    case bookTitleNotFound
+
+    /// Could not identify an author name in the screenshot.
+    case authorNotFound
+
+    /// Extraction confidence is below the required threshold.
+    case confidenceTooLow(score: Float, threshold: Float)
+
+    /// The AI model is not available on this device.
+    case modelUnavailable
+
+    /// The extraction result contained placeholder or invalid data.
+    case invalidExtractionResult(reason: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .notBookScreenshot:
+            return "This does not appear to be a book screenshot."
+        case .bookTitleNotFound:
+            return "Could not identify the book title."
+        case .authorNotFound:
+            return "Could not identify the author."
+        case .confidenceTooLow(let score, let threshold):
+            let scorePercent = Int(score * 100)
+            let thresholdPercent = Int(threshold * 100)
+            return "Extraction confidence (\(scorePercent)%) is below the \(thresholdPercent)% threshold."
+        case .modelUnavailable:
+            return "Apple Intelligence is not available on this device."
+        case .invalidExtractionResult(let reason):
+            return "Invalid extraction result: \(reason)"
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .notBookScreenshot:
+            return "Only screenshots from book apps (Kindle, Apple Books, Goodreads, etc.) are supported."
+        case .bookTitleNotFound, .authorNotFound:
+            return "Try a screenshot where the book title and author are clearly visible."
+        case .confidenceTooLow:
+            return "Try a clearer screenshot with the book title prominently displayed."
+        case .modelUnavailable:
+            return "This feature requires an iPhone 15 Pro or newer with iOS 18.1+."
+        case .invalidExtractionResult:
+            return "Try again with a different screenshot."
+        }
+    }
+
+    var isRetryable: Bool {
+        switch self {
+        case .modelUnavailable:
+            return false
+        case .notBookScreenshot, .bookTitleNotFound, .authorNotFound,
+             .confidenceTooLow, .invalidExtractionResult:
+            return true
+        }
+    }
+}
+
+// MARK: - TMDb Errors
+
+/// Errors from TMDb API operations.
+enum TMDbError: Error, RecoverableError {
+    /// TMDb API key is not configured.
+    case notConfigured
+
+    /// Movie search failed.
+    case searchFailed(reason: String)
+
+    /// No movies found matching the search query.
+    case noResultsFound(query: String)
+
+    /// Network connectivity issue.
+    case networkError(reason: String)
+
+    /// API returned an unexpected response.
+    case invalidResponse(statusCode: Int, message: String?)
+
+    var errorDescription: String? {
+        switch self {
+        case .notConfigured:
+            return "TMDb API is not configured."
+        case .searchFailed(let reason):
+            return "TMDb search failed: \(reason)"
+        case .noResultsFound(let query):
+            return "No TMDb results for: \(query)"
+        case .networkError(let reason):
+            return "Network error: \(reason)"
+        case .invalidResponse(let statusCode, let message):
+            let detail = message ?? "Unknown error"
+            return "TMDb API error (\(statusCode)): \(detail)"
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .notConfigured:
+            return "TMDb integration is optional. Movie will still be logged to Google Docs."
+        case .searchFailed, .networkError:
+            return "Check your internet connection and try again."
+        case .noResultsFound:
+            return "The movie may not be in TMDb database."
+        case .invalidResponse:
+            return "Please try again. If the problem persists, TMDb may be experiencing issues."
+        }
+    }
+
+    var isRetryable: Bool {
+        switch self {
+        case .notConfigured:
+            return false
+        case .searchFailed, .noResultsFound, .networkError, .invalidResponse:
+            return true
+        }
+    }
+}
+
+// MARK: - Google Books Errors
+
+/// Errors from Google Books API operations.
+enum GoogleBooksError: Error, RecoverableError {
+    /// User is not authenticated with Google Books.
+    case notAuthenticated
+
+    /// OAuth token has expired and needs refresh.
+    case tokenExpired
+
+    /// Book search failed.
+    case searchFailed(reason: String)
+
+    /// No books found matching the search query.
+    case noResultsFound(query: String)
+
+    /// Network connectivity issue.
+    case networkError(reason: String)
+
+    /// API returned an unexpected response.
+    case invalidResponse(statusCode: Int, message: String?)
+
+    var errorDescription: String? {
+        switch self {
+        case .notAuthenticated:
+            return "Google Books access not connected."
+        case .tokenExpired:
+            return "Google session has expired."
+        case .searchFailed(let reason):
+            return "Google Books search failed: \(reason)"
+        case .noResultsFound(let query):
+            return "No Google Books results for: \(query)"
+        case .networkError(let reason):
+            return "Network error: \(reason)"
+        case .invalidResponse(let statusCode, let message):
+            let detail = message ?? "Unknown error"
+            return "Google Books API error (\(statusCode)): \(detail)"
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .notAuthenticated:
+            return "Sign out and sign back in to grant Google Books access."
+        case .tokenExpired:
+            return "Please sign in again to refresh your session."
+        case .searchFailed, .networkError:
+            return "Check your internet connection and try again."
+        case .noResultsFound:
+            return "The book may not be in Google Books database."
+        case .invalidResponse:
+            return "Please try again. If the problem persists, contact support."
+        }
+    }
+
+    var isRetryable: Bool {
+        switch self {
+        case .notAuthenticated:
+            return false
+        case .tokenExpired:
+            return true
+        case .searchFailed, .noResultsFound, .networkError, .invalidResponse:
+            return true
+        }
+    }
+}
+
 // MARK: - YouTube Errors
 
 /// Errors from YouTube Data API operations.

@@ -46,6 +46,7 @@
 		A1000096000000000000096 /* GoogleBooksService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000097000000000000097 /* GoogleBooksService.swift */; };
 		A1000098000000000000098 /* MemeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000099000000000000099 /* MemeDetector.swift */; };
 		A100009A00000000000009A /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100009B00000000000009B /* OnboardingView.swift */; };
+		A100009C00000000000009C /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100009D00000000000009D /* DesignSystem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,6 +104,7 @@
 		A1000097000000000000097 /* GoogleBooksService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleBooksService.swift; sourceTree = "<group>"; };
 		A1000099000000000000099 /* MemeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeDetector.swift; sourceTree = "<group>"; };
 		A100009B00000000000009B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		A100009D00000000000009D /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +144,7 @@
 				A1000042000000000000042 /* Services */,
 				A1000078000000000000078 /* ViewModels */,
 				A1000079000000000000079 /* Views */,
+				A100009E00000000000009E /* Design */,
 				A1000006000000000000006 /* Assets.xcassets */,
 				A100000D00000000000000D /* Info.plist */,
 				A1000028000000000000028 /* PrivacyInfo.xcprivacy */,
@@ -243,6 +246,14 @@
 				A100009B00000000000009B /* OnboardingView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		A100009E00000000000009E /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				A100009D00000000000009D /* DesignSystem.swift */,
+			);
+			path = Design;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -382,6 +393,7 @@
 				A1000096000000000000096 /* GoogleBooksService.swift in Sources */,
 				A1000098000000000000098 /* MemeDetector.swift in Sources */,
 				A100009A00000000000009A /* OnboardingView.swift in Sources */,
+				A100009C00000000000009C /* DesignSystem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -11,14 +11,13 @@ import Photos
 struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
     @State private var currentPage = 0
-    @State private var isAnimating = false
 
     private let pages = OnboardingPage.allPages
 
     var body: some View {
         ZStack {
-            // iOS 26 Liquid Glass background
-            backgroundGradient
+            // Animated background
+            AnimatedOnboardingBackground(currentPage: currentPage)
 
             VStack(spacing: 0) {
                 // Page content
@@ -31,22 +30,21 @@ struct OnboardingView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(response: 0.5, dampingFraction: 0.8), value: currentPage)
 
-                // Bottom controls with glass card
-                VStack(spacing: 20) {
+                // Bottom controls with glass effect
+                VStack(spacing: AppTheme.spacingLG) {
                     // Page indicators
                     HStack(spacing: 10) {
                         ForEach(0..<pages.count, id: \.self) { index in
                             Capsule()
-                                .fill(index == currentPage ? Color.accentColor : Color.secondary.opacity(0.3))
-                                .frame(width: index == currentPage ? 24 : 8, height: 8)
+                                .fill(index == currentPage ? Color(hex: "6366F1") : Color.secondary.opacity(0.3))
+                                .frame(width: index == currentPage ? 28 : 8, height: 8)
                                 .animation(.spring(response: 0.4, dampingFraction: 0.7), value: currentPage)
                         }
                     }
-                    .padding(.top, 24)
 
-                    // Action button with glass effect
+                    // Action button
                     Button(action: handleButtonTap) {
-                        HStack(spacing: 10) {
+                        HStack(spacing: AppTheme.spacingSM) {
                             Text(buttonTitle)
                                 .fontWeight(.semibold)
 
@@ -56,41 +54,24 @@ struct OnboardingView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)
-                        .background {
-                            LinearGradient(
-                                colors: [.accentColor, .accentColor.opacity(0.8)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        }
+                        .background(AppTheme.accentGradient)
                         .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .shadow(color: .accentColor.opacity(0.3), radius: 12, y: 6)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLG, style: .continuous))
+                        .shadow(color: Color(hex: "6366F1").opacity(0.4), radius: 16, y: 8)
                     }
                     .sensoryFeedback(.impact(flexibility: .soft), trigger: currentPage)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 40)
+                    .bounceOnTap()
+                    .padding(.horizontal, AppTheme.spacingLG)
                 }
+                .padding(.top, AppTheme.spacingLG)
+                .padding(.bottom, AppTheme.spacing2XL)
                 .background {
-                    // Glass footer
-                    UnevenRoundedRectangle(topLeadingRadius: 32, topTrailingRadius: 32)
+                    UnevenRoundedRectangle(topLeadingRadius: AppTheme.radius2XL, topTrailingRadius: AppTheme.radius2XL)
                         .fill(.ultraThinMaterial)
                         .ignoresSafeArea()
                 }
             }
         }
-    }
-
-    private var backgroundGradient: some View {
-        LinearGradient(
-            colors: [
-                Color(.systemBackground),
-                Color(.systemGray6).opacity(0.5)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
     }
 
     private var buttonTitle: String {
@@ -105,6 +86,46 @@ struct OnboardingView: View {
         } else {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
                 hasCompletedOnboarding = true
+            }
+        }
+    }
+}
+
+// MARK: - Animated Background
+
+struct AnimatedOnboardingBackground: View {
+    let currentPage: Int
+    @State private var animate = false
+
+    private let pageColors: [Color] = [
+        Color(hex: "6366F1"),  // Blue/Purple for welcome
+        Color(hex: "10B981"),  // Green for photos
+        Color(hex: "EF4444"),  // Red for Google
+        Color(hex: "8B5CF6")   // Purple for ready
+    ]
+
+    var body: some View {
+        ZStack {
+            Color(.systemBackground)
+
+            // Animated gradient orbs
+            Circle()
+                .fill(pageColors[currentPage].opacity(0.15))
+                .frame(width: 400, height: 400)
+                .blur(radius: 80)
+                .offset(x: animate ? 100 : -100, y: animate ? -150 : -100)
+
+            Circle()
+                .fill(pageColors[(currentPage + 1) % pageColors.count].opacity(0.1))
+                .frame(width: 300, height: 300)
+                .blur(radius: 60)
+                .offset(x: animate ? -80 : 80, y: animate ? 300 : 250)
+        }
+        .ignoresSafeArea()
+        .animation(.easeInOut(duration: 0.8), value: currentPage)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 6).repeatForever(autoreverses: true)) {
+                animate = true
             }
         }
     }
@@ -125,10 +146,9 @@ struct OnboardingPage: Sendable {
     }
 
     static let allPages: [OnboardingPage] = [
-        // Page 1: Welcome
         OnboardingPage(
             icon: "rectangle.stack.fill",
-            iconColor: .blue,
+            iconColor: Color(hex: "6366F1"),
             title: "Welcome to ScreenSort",
             subtitle: "Automatically organize your screenshots by content type",
             features: [
@@ -138,11 +158,9 @@ struct OnboardingPage: Sendable {
                 Feature(icon: "face.smiling", text: "Memes sorted to their own album")
             ]
         ),
-
-        // Page 2: Photos Permission
         OnboardingPage(
             icon: "photo.on.rectangle.angled",
-            iconColor: .green,
+            iconColor: Color(hex: "10B981"),
             title: "Access Your Screenshots",
             subtitle: "ScreenSort needs access to your photo library to find and organize screenshots",
             features: [
@@ -152,11 +170,9 @@ struct OnboardingPage: Sendable {
                 Feature(icon: "lock.shield", text: "All processing stays on your device")
             ]
         ),
-
-        // Page 3: Google Permission
         OnboardingPage(
             icon: "link.circle.fill",
-            iconColor: .red,
+            iconColor: Color(hex: "EF4444"),
             title: "Connect Your Accounts",
             subtitle: "Sign in with Google to unlock powerful integrations",
             features: [
@@ -166,11 +182,9 @@ struct OnboardingPage: Sendable {
                 Feature(icon: "hand.raised", text: "You control what gets shared")
             ]
         ),
-
-        // Page 4: Ready
         OnboardingPage(
             icon: "checkmark.circle.fill",
-            iconColor: .accentColor,
+            iconColor: Color(hex: "8B5CF6"),
             title: "You're All Set",
             subtitle: "Grant permissions on the next screen and start sorting",
             features: [
@@ -190,19 +204,33 @@ struct OnboardingPageView: View {
     let isActive: Bool
 
     var body: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: AppTheme.spacingXL) {
             Spacer()
 
-            // Icon with symbol effect
-            Image(systemName: page.icon)
-                .font(.system(size: 80))
-                .foregroundStyle(page.iconColor.gradient)
-                .symbolRenderingMode(.hierarchical)
-                .symbolEffect(.pulse.wholeSymbol, options: .repeating, isActive: isActive)
-                .shadow(color: page.iconColor.opacity(0.3), radius: 20, y: 10)
+            // Icon with glow effect
+            ZStack {
+                // Glow
+                Circle()
+                    .fill(page.iconColor.opacity(0.2))
+                    .frame(width: 140, height: 140)
+                    .blur(radius: 30)
+
+                // Icon
+                Image(systemName: page.icon)
+                    .font(.system(size: 72))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [page.iconColor, page.iconColor.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .symbolRenderingMode(.hierarchical)
+                    .symbolEffect(.pulse.wholeSymbol, options: .repeating.speed(0.5), isActive: isActive)
+            }
 
             // Title & Subtitle
-            VStack(spacing: 12) {
+            VStack(spacing: AppTheme.spacingSM) {
                 Text(page.title)
                     .font(.title)
                     .fontWeight(.bold)
@@ -212,17 +240,16 @@ struct OnboardingPageView: View {
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, AppTheme.spacingXL)
             }
 
-            // Features with glass cards
-            VStack(spacing: 12) {
+            // Features
+            VStack(spacing: AppTheme.spacingSM) {
                 ForEach(page.features, id: \.text) { feature in
-                    FeatureRow(feature: feature)
+                    OnboardingFeatureRow(feature: feature, accentColor: page.iconColor)
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 8)
+            .padding(.horizontal, AppTheme.spacingLG)
 
             Spacer()
             Spacer()
@@ -232,19 +259,19 @@ struct OnboardingPageView: View {
 
 // MARK: - Feature Row
 
-struct FeatureRow: View {
+struct OnboardingFeatureRow: View {
     let feature: OnboardingPage.Feature
+    let accentColor: Color
 
     var body: some View {
-        HStack(spacing: 14) {
-            // Icon with gradient circle
+        HStack(spacing: AppTheme.spacingSM) {
             Circle()
-                .fill(Color.accentColor.opacity(0.15))
+                .fill(accentColor.opacity(0.12))
                 .frame(width: 36, height: 36)
                 .overlay {
                     Image(systemName: feature.icon)
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(accentColor)
                 }
 
             Text(feature.text)
@@ -253,10 +280,10 @@ struct FeatureRow: View {
 
             Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, AppTheme.spacingMD)
+        .padding(.vertical, AppTheme.spacingSM)
         .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: AppTheme.radiusMD, style: .continuous)
                 .fill(.ultraThinMaterial)
         }
     }

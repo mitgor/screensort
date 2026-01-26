@@ -19,6 +19,10 @@ final class ProcessingViewModel {
     var googleDocsStatus: String?
     var googleDocsError: String?
 
+    /// OCR text snapshots for potential correction learning
+    /// Key: asset localIdentifier, Value: array of recognized text strings
+    private(set) var ocrSnapshots: [String: [String]] = [:]
+
     // MARK: - Services
 
     private let photoService: PhotoLibraryServiceProtocol
@@ -167,6 +171,7 @@ final class ProcessingViewModel {
 
         isProcessing = true
         results = []
+        ocrSnapshots = [:]
         lastError = nil
 
         // Prevent device from sleeping during processing
@@ -242,8 +247,12 @@ final class ProcessingViewModel {
             // 1. Run OCR once
             let observations = try await ocrService.recognizeText(from: asset, minimumConfidence: 0.0)
 
-            // 2. Classify the screenshot
-            let screenshotType = classifier.classify(textObservations: observations)
+            // Store OCR snapshot for potential correction learning
+            let ocrText = observations.map { $0.text }
+            ocrSnapshots[asset.localIdentifier] = ocrText
+
+            // 2. Classify the screenshot (using AI when available)
+            let screenshotType = await classifier.classifyWithAI(textObservations: observations)
 
             // 3. Route to appropriate handler
             return switch screenshotType {

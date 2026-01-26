@@ -47,6 +47,15 @@
 		A1000098000000000000098 /* MemeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000099000000000000099 /* MemeDetector.swift */; };
 		A100009A00000000000009A /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100009B00000000000009B /* OnboardingView.swift */; };
 		A100009C00000000000009C /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100009D00000000000009D /* DesignSystem.swift */; };
+		A10000A000000000000000A /* Correction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000A100000000000001A /* Correction.swift */; };
+		A10000A200000000000002A /* CorrectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000A300000000000003A /* CorrectionStore.swift */; };
+		A10000A400000000000004A /* CorrectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000A500000000000005A /* CorrectionService.swift */; };
+		A10000A600000000000006A /* AIScreenshotClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000A700000000000007A /* AIScreenshotClassifier.swift */; };
+		A10000A800000000000008A /* CorrectionReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000A900000000000009A /* CorrectionReviewViewModel.swift */; };
+		A10000AA0000000000000AA /* CorrectionReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000AB0000000000000BA /* CorrectionReviewView.swift */; };
+		A10000AC0000000000000CA /* CorrectionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000AD0000000000000DA /* CorrectionSheet.swift */; };
+		A10000AE0000000000000EA /* AsyncThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000AF0000000000000FA /* AsyncThumbnailView.swift */; };
+		A10000B00000000000000GA /* ReviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000B10000000000000HA /* ReviewCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +114,15 @@
 		A1000099000000000000099 /* MemeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeDetector.swift; sourceTree = "<group>"; };
 		A100009B00000000000009B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A100009D00000000000009D /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		A10000A100000000000001A /* Correction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Correction.swift; sourceTree = "<group>"; };
+		A10000A300000000000003A /* CorrectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionStore.swift; sourceTree = "<group>"; };
+		A10000A500000000000005A /* CorrectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionService.swift; sourceTree = "<group>"; };
+		A10000A700000000000007A /* AIScreenshotClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIScreenshotClassifier.swift; sourceTree = "<group>"; };
+		A10000A900000000000009A /* CorrectionReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionReviewViewModel.swift; sourceTree = "<group>"; };
+		A10000AB0000000000000BA /* CorrectionReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionReviewView.swift; sourceTree = "<group>"; };
+		A10000AD0000000000000DA /* CorrectionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionSheet.swift; sourceTree = "<group>"; };
+		A10000AF0000000000000FA /* AsyncThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncThumbnailView.swift; sourceTree = "<group>"; };
+		A10000B10000000000000HA /* ReviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -188,6 +206,7 @@
 				A1000087000000000000087 /* BookMetadata.swift */,
 				A1000036000000000000036 /* ProcessingResult.swift */,
 				A1000045000000000000045 /* Errors.swift */,
+				A10000A100000000000001A /* Correction.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -210,6 +229,9 @@
 				A1000097000000000000097 /* GoogleBooksService.swift */,
 				A1000071000000000000071 /* APIClient.swift */,
 				A1000083000000000000083 /* GoogleDocsService.swift */,
+				A10000A300000000000003A /* CorrectionStore.swift */,
+				A10000A500000000000005A /* CorrectionService.swift */,
+				A10000A700000000000007A /* AIScreenshotClassifier.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -235,6 +257,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000073000000000000073 /* ProcessingViewModel.swift */,
+				A10000A900000000000009A /* CorrectionReviewViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -242,10 +265,22 @@
 		A1000079000000000000079 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				A10000B20000000000000IA /* Components */,
 				A1000075000000000000075 /* ProcessingView.swift */,
 				A100009B00000000000009B /* OnboardingView.swift */,
+				A10000AB0000000000000BA /* CorrectionReviewView.swift */,
+				A10000AD0000000000000DA /* CorrectionSheet.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		A10000B20000000000000IA /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A10000AF0000000000000FA /* AsyncThumbnailView.swift */,
+				A10000B10000000000000HA /* ReviewCard.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		A100009E00000000000009E /* Design */ = {
@@ -394,6 +429,15 @@
 				A1000098000000000000098 /* MemeDetector.swift in Sources */,
 				A100009A00000000000009A /* OnboardingView.swift in Sources */,
 				A100009C00000000000009C /* DesignSystem.swift in Sources */,
+				A10000A000000000000000A /* Correction.swift in Sources */,
+				A10000A200000000000002A /* CorrectionStore.swift in Sources */,
+				A10000A400000000000004A /* CorrectionService.swift in Sources */,
+				A10000A600000000000006A /* AIScreenshotClassifier.swift in Sources */,
+				A10000A800000000000008A /* CorrectionReviewViewModel.swift in Sources */,
+				A10000AA0000000000000AA /* CorrectionReviewView.swift in Sources */,
+				A10000AC0000000000000CA /* CorrectionSheet.swift in Sources */,
+				A10000AE0000000000000EA /* AsyncThumbnailView.swift in Sources */,
+				A10000B00000000000000GA /* ReviewCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

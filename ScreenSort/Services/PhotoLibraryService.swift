@@ -103,6 +103,34 @@ class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol {
         }
     }
 
+    func removeAsset(_ asset: PHAsset, fromAlbum albumName: String) async throws {
+        // Find the album
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
+        let albums = PHAssetCollection.fetchAssetCollections(
+            with: .album,
+            subtype: .albumRegular,
+            options: fetchOptions
+        )
+
+        guard let album = albums.firstObject else {
+            // Album doesn't exist, nothing to remove from
+            return
+        }
+
+        // Remove asset from album (does not delete the photo)
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                guard let albumChangeRequest = PHAssetCollectionChangeRequest(for: album) else {
+                    return
+                }
+                albumChangeRequest.removeAssets([asset] as NSArray)
+            }
+        } catch {
+            throw PhotoLibraryError.moveToAlbumFailed(reason: "Failed to remove from album: \(error.localizedDescription)")
+        }
+    }
+
     // MARK: - Caption Management (stored in UserDefaults)
 
     private static let captionStorageKey = "ScreenSort.ProcessedCaptions"

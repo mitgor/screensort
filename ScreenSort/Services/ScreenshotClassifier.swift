@@ -18,6 +18,11 @@ protocol ScreenshotClassifierProtocol {
     /// - Returns: The detected screenshot type.
     func classify(textObservations: [TextObservation]) -> ScreenshotType
 
+    /// Classify a screenshot using AI when available, with keyword fallback.
+    /// - Parameter textObservations: Array of text detected in the screenshot.
+    /// - Returns: The detected screenshot type.
+    func classifyWithAI(textObservations: [TextObservation]) async -> ScreenshotType
+
     /// Check if the screenshot has UI patterns typical of music players.
     /// - Parameter textObservations: Array of text detected in the screenshot.
     /// - Returns: `true` if music UI patterns are detected.
@@ -158,6 +163,10 @@ enum ClassificationConfig {
 /// ```
 final class ScreenshotClassifier: ScreenshotClassifierProtocol, Sendable {
 
+    // MARK: - AI Classifier
+
+    private let aiClassifier = AIScreenshotClassifier()
+
     // MARK: - Public API
 
     /// Classify a screenshot based on OCR text observations.
@@ -185,6 +194,21 @@ final class ScreenshotClassifier: ScreenshotClassifierProtocol, Sendable {
         }
 
         return bestMatch.0
+    }
+
+    /// Classify a screenshot using AI when available, with keyword fallback.
+    ///
+    /// This method uses Apple Intelligence for semantic classification when available
+    /// on supported devices (iPhone 15 Pro+, iOS 18.1+). Falls back to keyword-based
+    /// classification on older devices or when AI is unavailable.
+    ///
+    /// - Parameter textObservations: Array of text detected in the screenshot.
+    /// - Returns: The detected screenshot type.
+    func classifyWithAI(textObservations: [TextObservation]) async -> ScreenshotType {
+        return await aiClassifier.classifyWithFallback(
+            textObservations: textObservations,
+            fallbackClassifier: self
+        )
     }
 
     /// Check if the screenshot has UI patterns typical of music player lock screens.

@@ -17,6 +17,9 @@ protocol PhotoLibraryServiceProtocol {
     /// Add asset to specified album
     func addAsset(_ asset: PHAsset, toAlbum albumName: String) async throws
 
+    /// Remove asset from specified album (does not delete the photo)
+    func removeAsset(_ asset: PHAsset, fromAlbum albumName: String) async throws
+
     /// Set caption on a photo asset (uses undocumented API - personal use only)
     /// Caption format: "ScreenSort: {Type}: {Details}"
     func setCaption(_ caption: String, for asset: PHAsset) async throws

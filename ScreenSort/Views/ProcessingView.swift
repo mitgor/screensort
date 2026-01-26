@@ -10,6 +10,8 @@ import Photos
 
 struct ProcessingView: View {
     @State private var viewModel = ProcessingViewModel()
+    @State private var correctionViewModel = CorrectionReviewViewModel()
+    @State private var showingReviewSheet = false
 
     var body: some View {
         NavigationStack {
@@ -47,6 +49,10 @@ struct ProcessingView: View {
                         if !viewModel.results.isEmpty {
                             resultsSection
                                 .transition(.move(edge: .bottom).combined(with: .opacity))
+
+                            // Review & Correct button
+                            reviewCorrectionButton
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
 
                         // Google Doc link
@@ -60,6 +66,14 @@ struct ProcessingView: View {
             .navigationBarTitleDisplayMode(.large)
             .onAppear {
                 viewModel.checkInitialState()
+            }
+            .sheet(isPresented: $showingReviewSheet) {
+                CorrectionReviewView(viewModel: correctionViewModel)
+            }
+            .onChange(of: showingReviewSheet) { _, isShowing in
+                if isShowing {
+                    correctionViewModel.loadResults(viewModel.results, ocrSnapshots: viewModel.ocrSnapshots)
+                }
             }
             // Only animate UI state changes, not data changes (prevents layout thrashing)
             .animation(.spring(response: 0.5, dampingFraction: 0.8), value: viewModel.isProcessing)
@@ -381,6 +395,41 @@ struct ProcessingView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Review & Correct Button
+
+    private var reviewCorrectionButton: some View {
+        Button(action: {
+            showingReviewSheet = true
+        }) {
+            HStack(spacing: AppTheme.spacingSM) {
+                Image(systemName: "pencil.and.list.clipboard")
+                    .font(.body.weight(.medium))
+
+                Text("Review & Correct")
+                    .fontWeight(.medium)
+
+                Spacer()
+
+                // Show count of flagged items
+                if viewModel.flaggedCount > 0 || viewModel.unknownCount > 0 {
+                    Text("\(viewModel.flaggedCount + viewModel.unknownCount) to review")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: AppTheme.radiusLG, style: .continuous)
+                    .fill(Color(.secondarySystemGroupedBackground))
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Google Doc Section

@@ -14,8 +14,8 @@ struct ProcessingView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Animated gradient background
-                AnimatedBackground()
+                // Animated gradient background (disabled during processing)
+                AnimatedBackground(isAnimating: !viewModel.isProcessing)
 
                 ScrollView {
                     VStack(spacing: AppTheme.spacingLG) {
@@ -61,9 +61,9 @@ struct ProcessingView: View {
             .onAppear {
                 viewModel.checkInitialState()
             }
+            // Only animate UI state changes, not data changes (prevents layout thrashing)
             .animation(.spring(response: 0.5, dampingFraction: 0.8), value: viewModel.isProcessing)
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.lastError)
-            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: viewModel.results.count)
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.lastError != nil)
         }
     }
 
@@ -72,14 +72,14 @@ struct ProcessingView: View {
     private var headerSection: some View {
         HStack(spacing: AppTheme.spacingMD) {
             StatCard(
-                value: "\(viewModel.results.filter { $0.status == .success }.count)",
+                value: "\(viewModel.successCount)",
                 label: "Processed",
                 icon: "checkmark.circle.fill",
                 color: AppTheme.musicColor
             )
 
             StatCard(
-                value: "\(viewModel.results.filter { $0.status == .flagged }.count)",
+                value: "\(viewModel.flaggedCount)",
                 label: "Flagged",
                 icon: "flag.fill",
                 color: .orange
@@ -302,12 +302,7 @@ struct ProcessingView: View {
     // MARK: - Results Section
 
     private var resultsSection: some View {
-        let successResults = viewModel.results.filter { $0.status == .success && $0.title != nil }
-        let flaggedCount = viewModel.results.filter { $0.status == .flagged }.count
-        let failedCount = viewModel.results.filter { $0.status == .failed }.count
-        let unknownCount = viewModel.results.filter { $0.contentType == .unknown }.count
-
-        return VStack(spacing: AppTheme.spacingSM) {
+        VStack(spacing: AppTheme.spacingSM) {
             // Section header with summary counters
             HStack {
                 Text("Results")
@@ -320,29 +315,29 @@ struct ProcessingView: View {
             .padding(.horizontal, 4)
 
             // Summary of non-successful items
-            if flaggedCount > 0 || failedCount > 0 || unknownCount > 0 {
+            if viewModel.flaggedCount > 0 || viewModel.failedCount > 0 || viewModel.unknownCount > 0 {
                 HStack(spacing: AppTheme.spacingSM) {
-                    if unknownCount > 0 {
+                    if viewModel.unknownCount > 0 {
                         SummaryChip(
                             icon: "questionmark.circle",
                             text: "Could not classify",
-                            count: unknownCount,
+                            count: viewModel.unknownCount,
                             color: AppTheme.unknownColor
                         )
                     }
-                    if flaggedCount > 0 {
+                    if viewModel.flaggedCount > 0 {
                         SummaryChip(
                             icon: "flag.fill",
                             text: "Flagged",
-                            count: flaggedCount,
+                            count: viewModel.flaggedCount,
                             color: .orange
                         )
                     }
-                    if failedCount > 0 {
+                    if viewModel.failedCount > 0 {
                         SummaryChip(
                             icon: "xmark.circle",
                             text: "Failed",
-                            count: failedCount,
+                            count: viewModel.failedCount,
                             color: .red
                         )
                     }
@@ -351,17 +346,14 @@ struct ProcessingView: View {
             }
 
             // Scrollable list of successful results only
-            if !successResults.isEmpty {
+            if !viewModel.successResults.isEmpty {
                 GlassCard(padding: AppTheme.spacingSM) {
                     ScrollView {
                         LazyVStack(spacing: 0) {
-                            ForEach(Array(successResults.enumerated()), id: \.element.id) { index, result in
+                            ForEach(viewModel.successResults) { result in
                                 CompactResultRow(result: result)
-
-                                if index < successResults.count - 1 {
-                                    Divider()
-                                        .padding(.horizontal, AppTheme.spacingSM)
-                                }
+                                Divider()
+                                    .padding(.horizontal, AppTheme.spacingSM)
                             }
                         }
                     }
@@ -372,11 +364,9 @@ struct ProcessingView: View {
     }
 
     private var resultsSummaryPills: some View {
-        let successByType = Dictionary(grouping: viewModel.results.filter { $0.status == .success }) { $0.contentType }
-
-        return HStack(spacing: 6) {
+        HStack(spacing: 6) {
             ForEach(ScreenshotType.allCases.filter { $0 != .unknown }, id: \.self) { type in
-                if let count = successByType[type]?.count, count > 0 {
+                if let count = viewModel.successCountByType[type], count > 0 {
                     HStack(spacing: 3) {
                         Image(systemName: type.iconName)
                             .font(.caption2)
@@ -448,6 +438,7 @@ struct ProcessingView: View {
 // MARK: - Animated Background
 
 struct AnimatedBackground: View {
+    let isAnimating: Bool
     @State private var animate = false
 
     var body: some View {
@@ -461,18 +452,18 @@ struct AnimatedBackground: View {
                 endPoint: .bottom
             )
 
-            // Floating orbs
+            // Floating orbs (only animate when not processing)
             Circle()
                 .fill(Color(hex: "6366F1").opacity(0.08))
                 .frame(width: 300, height: 300)
                 .blur(radius: 60)
-                .offset(x: animate ? 50 : -50, y: animate ? -100 : -50)
+                .offset(x: animate && isAnimating ? 50 : -50, y: animate && isAnimating ? -100 : -50)
 
             Circle()
                 .fill(Color(hex: "EC4899").opacity(0.06))
                 .frame(width: 250, height: 250)
                 .blur(radius: 50)
-                .offset(x: animate ? -80 : 80, y: animate ? 200 : 150)
+                .offset(x: animate && isAnimating ? -80 : 80, y: animate && isAnimating ? 200 : 150)
         }
         .ignoresSafeArea()
         .onAppear {
@@ -480,6 +471,7 @@ struct AnimatedBackground: View {
                 animate = true
             }
         }
+        .animation(.easeInOut(duration: 0.5), value: isAnimating)
     }
 }
 

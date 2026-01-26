@@ -94,6 +94,32 @@ final class ProcessingViewModel {
         hasPhotoAccess && isYouTubeAuthenticated && !isProcessing
     }
 
+    // Pre-computed result counts to avoid filtering in view body
+    var successCount: Int {
+        results.filter { $0.status == .success }.count
+    }
+
+    var flaggedCount: Int {
+        results.filter { $0.status == .flagged }.count
+    }
+
+    var failedCount: Int {
+        results.filter { $0.status == .failed }.count
+    }
+
+    var unknownCount: Int {
+        results.filter { $0.contentType == .unknown }.count
+    }
+
+    var successResults: [ProcessingResultItem] {
+        results.filter { $0.status == .success && $0.title != nil }
+    }
+
+    var successCountByType: [ScreenshotType: Int] {
+        Dictionary(grouping: results.filter { $0.status == .success }) { $0.contentType }
+            .mapValues { $0.count }
+    }
+
     // MARK: - Setup
 
     func checkInitialState() {

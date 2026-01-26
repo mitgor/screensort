@@ -149,15 +149,20 @@ final class ProcessingViewModel {
         defer {
             // Re-enable sleep when done
             UIApplication.shared.isIdleTimerDisabled = false
+            print("🏁 [ProcessingViewModel] Processing finished")
         }
 
         do {
+            print("📸 [ProcessingViewModel] Fetching screenshots...")
             // 1. Fetch screenshots (excluding already processed ones)
             let allScreenshots = try await photoService.fetchScreenshots()
+            print("📸 [ProcessingViewModel] Found \(allScreenshots.count) total screenshots")
+
             let screenshots = allScreenshots.filter { asset in
                 guard let caption = photoService.getCaption(for: asset) else { return true }
                 return !caption.hasPrefix(captionPrefix)
             }
+            print("📸 [ProcessingViewModel] \(screenshots.count) new screenshots to process")
 
             processingProgress = (0, screenshots.count)
 
@@ -167,9 +172,12 @@ final class ProcessingViewModel {
                 return
             }
 
+            print("🎵 [ProcessingViewModel] Getting/creating YouTube playlist...")
             // 2. Get/create YouTube playlist (for music)
             let playlistId = try await youtubeService.getOrCreatePlaylist(named: playlistName)
+            print("🎵 [ProcessingViewModel] Playlist ID: \(playlistId)")
 
+            print("📁 [ProcessingViewModel] Creating albums...")
             // 3. Create all albums in parallel using TaskGroup
             try await withThrowingTaskGroup(of: Void.self) { group in
                 for type in ScreenshotType.allCases {
@@ -179,12 +187,16 @@ final class ProcessingViewModel {
                 }
                 try await group.waitForAll()
             }
+            print("📁 [ProcessingViewModel] Albums created")
 
             // 4. Process each screenshot
+            print("🔄 [ProcessingViewModel] Starting screenshot processing...")
             for (index, asset) in screenshots.enumerated() {
+                print("🔄 [ProcessingViewModel] Processing \(index + 1)/\(screenshots.count)")
                 processingProgress = (index + 1, screenshots.count)
                 let result = await processScreenshot(asset: asset, playlistId: playlistId)
                 results.append(result)
+                print("✅ [ProcessingViewModel] Result: \(result.contentType) - \(result.status)")
             }
 
             // Update Google Doc URL if available

@@ -302,40 +302,81 @@ struct ProcessingView: View {
     // MARK: - Results Section
 
     private var resultsSection: some View {
-        VStack(spacing: AppTheme.spacingSM) {
-            // Section header
+        let successResults = viewModel.results.filter { $0.status == .success && $0.title != nil }
+        let flaggedCount = viewModel.results.filter { $0.status == .flagged }.count
+        let failedCount = viewModel.results.filter { $0.status == .failed }.count
+        let unknownCount = viewModel.results.filter { $0.contentType == .unknown }.count
+
+        return VStack(spacing: AppTheme.spacingSM) {
+            // Section header with summary counters
             HStack {
                 Text("Results")
                     .font(.title3.weight(.bold))
 
                 Spacer()
 
-                resultsSummary
+                resultsSummaryPills
             }
             .padding(.horizontal, 4)
 
-            // Results list
-            GlassCard(padding: AppTheme.spacingSM) {
-                LazyVStack(spacing: 0) {
-                    ForEach(Array(viewModel.results.enumerated()), id: \.element.id) { index, result in
-                        ResultRow(result: result)
+            // Summary of non-successful items
+            if flaggedCount > 0 || failedCount > 0 || unknownCount > 0 {
+                HStack(spacing: AppTheme.spacingSM) {
+                    if unknownCount > 0 {
+                        SummaryChip(
+                            icon: "questionmark.circle",
+                            text: "Could not classify",
+                            count: unknownCount,
+                            color: AppTheme.unknownColor
+                        )
+                    }
+                    if flaggedCount > 0 {
+                        SummaryChip(
+                            icon: "flag.fill",
+                            text: "Flagged",
+                            count: flaggedCount,
+                            color: .orange
+                        )
+                    }
+                    if failedCount > 0 {
+                        SummaryChip(
+                            icon: "xmark.circle",
+                            text: "Failed",
+                            count: failedCount,
+                            color: .red
+                        )
+                    }
+                    Spacer()
+                }
+            }
 
-                        if index < viewModel.results.count - 1 {
-                            Divider()
-                                .padding(.horizontal, AppTheme.spacingMD)
+            // Scrollable list of successful results only
+            if !successResults.isEmpty {
+                GlassCard(padding: AppTheme.spacingSM) {
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(Array(successResults.enumerated()), id: \.element.id) { index, result in
+                                CompactResultRow(result: result)
+
+                                if index < successResults.count - 1 {
+                                    Divider()
+                                        .padding(.horizontal, AppTheme.spacingSM)
+                                }
+                            }
                         }
                     }
+                    .frame(maxHeight: 300)
                 }
             }
         }
     }
 
-    private var resultsSummary: some View {
-        let grouped = Dictionary(grouping: viewModel.results) { $0.contentType }
+    private var resultsSummaryPills: some View {
+        let successByType = Dictionary(grouping: viewModel.results.filter { $0.status == .success }) { $0.contentType }
 
         return HStack(spacing: 6) {
-            ForEach(ScreenshotType.allCases, id: \.self) { type in
-                if let count = grouped[type]?.count, count > 0 {
+            ForEach(ScreenshotType.allCases.filter { $0 != .unknown }, id: \.self) { type in
+                if let count = successByType[type]?.count, count > 0 {
                     HStack(spacing: 3) {
                         Image(systemName: type.iconName)
                             .font(.caption2)
@@ -622,6 +663,86 @@ struct ResultRow: View {
         case .book: return "Google Books"
         case .meme, .unknown: return "Open"
         }
+    }
+
+    private func colorForType(_ type: ScreenshotType) -> Color {
+        switch type {
+        case .music: return AppTheme.musicColor
+        case .movie: return AppTheme.movieColor
+        case .book: return AppTheme.bookColor
+        case .meme: return AppTheme.memeColor
+        case .unknown: return AppTheme.unknownColor
+        }
+    }
+}
+
+// MARK: - Summary Chip
+
+struct SummaryChip: View {
+    let icon: String
+    let text: String
+    let count: Int
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(color)
+
+            Text("\(text) – \(count)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(color.opacity(0.08))
+        .clipShape(Capsule())
+    }
+}
+
+// MARK: - Compact Result Row
+
+struct CompactResultRow: View {
+    let result: ProcessingResultItem
+
+    var body: some View {
+        HStack(spacing: AppTheme.spacingSM) {
+            // Type icon
+            Image(systemName: result.contentType.iconName)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(colorForType(result.contentType))
+                .frame(width: 24)
+
+            // Title and creator
+            VStack(alignment: .leading, spacing: 2) {
+                if let title = result.title {
+                    Text(title)
+                        .font(.subheadline)
+                        .lineLimit(1)
+                }
+
+                if let creator = result.creator {
+                    Text(creator)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            // Service link
+            if let link = result.serviceLink, let url = URL(string: link) {
+                Link(destination: url) {
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption)
+                        .foregroundStyle(Color(hex: "6366F1"))
+                }
+            }
+        }
+        .padding(.horizontal, AppTheme.spacingSM)
+        .padding(.vertical, 8)
     }
 
     private func colorForType(_ type: ScreenshotType) -> Color {

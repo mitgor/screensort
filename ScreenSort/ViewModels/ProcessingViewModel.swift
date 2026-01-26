@@ -1,6 +1,7 @@
 import SwiftUI
 import Photos
 import Observation
+import UIKit
 
 @MainActor
 @Observable
@@ -141,6 +142,14 @@ final class ProcessingViewModel {
         isProcessing = true
         results = []
         lastError = nil
+
+        // Prevent device from sleeping during processing
+        UIApplication.shared.isIdleTimerDisabled = true
+
+        defer {
+            // Re-enable sleep when done
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
 
         do {
             // 1. Fetch screenshots (excluding already processed ones)

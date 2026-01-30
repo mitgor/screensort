@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Screenshots get classified and organized without manual effort
-**Current focus:** Phase 3 - State Persistence
+**Current focus:** Phase 3 - State Persistence (COMPLETE)
 
 ## Current Position
 
 Phase: 3 of 4 (State Persistence)
-Plan: 1 of 2 in current phase
-Status: In progress - 03-01 complete, ready for 03-02
-Last activity: 2026-01-30 - Completed 03-01-PLAN.md
+Plan: 2 of 2 in current phase (PHASE COMPLETE)
+Status: Phase 3 complete, ready for Phase 4
+Last activity: 2026-01-30 - Completed 03-02-PLAN.md
 
-Progress: [####------] 40%
+Progress: [#####-----] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 1.5 min
-- Total execution time: 6 min
+- Total plans completed: 5
+- Average duration: 1.6 min
+- Total execution time: 8 min
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: [####------] 40%
 |-------|-------|-------|----------|
 | 01-fix-ui-freeze | 2 | 3 min | 1.5 min |
 | 02-progress-indicators | 1 | <1 min | <1 min |
-| 03-state-persistence | 1 | 2 min | 2 min |
+| 03-state-persistence | 2 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2 min), 01-02 (1 min), 02-01 (<1 min), 03-01 (2 min)
+- Last 5 plans: 01-02 (1 min), 02-01 (<1 min), 03-01 (2 min), 03-02 (2 min)
 - Trend: Stable at ~1.5 min/plan
 
 *Updated after each plan completion*
@@ -57,6 +57,9 @@ Recent decisions affecting current work:
 - [03-01]: Follow CorrectionStore singleton pattern for ProcessedScreenshotStore
 - [03-01]: Store Set<String> as Array in UserDefaults (Set not directly supported)
 - [03-01]: Use explicit memberwise init for ProcessingResultItem to maintain call sites
+- [03-02]: Keep caption-based filtering as legacy fallback alongside ID-based filtering
+- [03-02]: Mark each screenshot processed immediately after success (crash safety)
+- [03-02]: Save results after batch completes (reduces write frequency)
 
 ### Pending Todos
 
@@ -69,8 +72,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 03-01-PLAN.md
-Resume file: None (ready for 03-02)
+Stopped at: Completed 03-02-PLAN.md (Phase 3 complete)
+Resume file: None (ready for Phase 4)
 
 ---
-*Last updated: 2026-01-30 after 03-01-PLAN.md completion*
+*Last updated: 2026-01-30 after 03-02-PLAN.md completion*

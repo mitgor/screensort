@@ -11,7 +11,7 @@ ScreenSort has working AI-powered screenshot classification but suffers from a c
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Fix UI Freeze** - Make processing non-blocking with cancel support
-- [ ] **Phase 2: Progress Indicators** - Show processing progress with count display
+- [x] **Phase 2: Progress Indicators** - Show processing progress with count display
 - [ ] **Phase 3: State Persistence** - Track processed screenshots, persist results
 - [ ] **Phase 4: Launch Experience** - Instant launch with cached results
 
@@ -44,7 +44,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md — Add native ProgressView and completion haptic
+- [x] 02-01-PLAN.md — Add native ProgressView and completion haptic
 
 ### Phase 3: State Persistence
 **Goal**: Processing results survive app termination; previously processed screenshots are skipped
@@ -81,7 +81,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Fix UI Freeze | 2/2 | Complete | 2026-01-30 |
-| 2. Progress Indicators | 0/1 | Planned | - |
+| 2. Progress Indicators | 1/1 | Complete | 2026-01-30 |
 | 3. State Persistence | 0/? | Not started | - |
 | 4. Launch Experience | 0/? | Not started | - |
 

@@ -9,7 +9,7 @@
 ### Processing UX (PROC)
 
 - [x] **PROC-01**: User sees immediate feedback when processing starts (no perceived freeze)
-- [ ] **PROC-02**: User sees progress indicator showing current/total screenshots during processing
+- [x] **PROC-02**: User sees progress indicator showing current/total screenshots during processing
 - [x] **PROC-03**: User can cancel processing at any time during execution
 - [x] **PROC-04**: Processing runs in background without blocking UI interactions
 
@@ -51,7 +51,7 @@
 | Requirement | Phase | Plan | Status |
 |-------------|-------|------|--------|
 | PROC-01 | 1 | 01-01, 01-02 | Complete |
-| PROC-02 | 2 | — | Pending |
+| PROC-02 | 2 | 02-01 | Complete |
 | PROC-03 | 1 | 01-02 | Complete |
 | PROC-04 | 1 | 01-01, 01-02 | Complete |
 | LAUNCH-01 | 4 | — | Pending |

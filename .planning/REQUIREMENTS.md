@@ -26,10 +26,10 @@
 
 ### Persistence (PERSIST)
 
-- [ ] **PERSIST-01**: App tracks which screenshots have been processed
-- [ ] **PERSIST-02**: Previously processed screenshots are skipped on subsequent runs
-- [ ] **PERSIST-03**: Processing results are persisted between app launches
-- [ ] **PERSIST-04**: Cache invalidation when source screenshots are deleted
+- [x] **PERSIST-01**: App tracks which screenshots have been processed
+- [x] **PERSIST-02**: Previously processed screenshots are skipped on subsequent runs
+- [x] **PERSIST-03**: Processing results are persisted between app launches
+- [x] **PERSIST-04**: Cache invalidation when source screenshots are deleted
 
 ## v2 Requirements (Deferred)
 
@@ -59,10 +59,10 @@
 | LAUNCH-03 | 4 | — | Pending |
 | ORG-01 | 1 | 01-02 | Complete |
 | ORG-02 | 1 | 01-02 | Complete |
-| PERSIST-01 | 3 | — | Pending |
-| PERSIST-02 | 3 | — | Pending |
-| PERSIST-03 | 3 | — | Pending |
-| PERSIST-04 | 3 | — | Pending |
+| PERSIST-01 | 3 | 03-01, 03-02 | Complete |
+| PERSIST-02 | 3 | 03-02 | Complete |
+| PERSIST-03 | 3 | 03-01, 03-02 | Complete |
+| PERSIST-04 | 3 | 03-01, 03-02 | Complete |
 
 ---
 *Last updated: 2026-01-30 after roadmap creation*

@@ -12,7 +12,7 @@ ScreenSort has working AI-powered screenshot classification but suffers from a c
 
 - [x] **Phase 1: Fix UI Freeze** - Make processing non-blocking with cancel support
 - [x] **Phase 2: Progress Indicators** - Show processing progress with count display
-- [ ] **Phase 3: State Persistence** - Track processed screenshots, persist results
+- [x] **Phase 3: State Persistence** - Track processed screenshots, persist results
 - [ ] **Phase 4: Launch Experience** - Instant launch with cached results
 
 ## Phase Details
@@ -58,8 +58,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Create ProcessedScreenshotStore and add Codable conformance
-- [ ] 03-02-PLAN.md — Integrate persistence into ProcessingViewModel
+- [x] 03-01-PLAN.md — Create ProcessedScreenshotStore and add Codable conformance
+- [x] 03-02-PLAN.md — Integrate persistence into ProcessingViewModel
 
 ### Phase 4: Launch Experience
 **Goal**: App launches instantly with previous results visible; loading state is polished
@@ -83,7 +83,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Fix UI Freeze | 2/2 | Complete | 2026-01-30 |
 | 2. Progress Indicators | 1/1 | Complete | 2026-01-30 |
-| 3. State Persistence | 0/2 | Planned | - |
+| 3. State Persistence | 2/2 | Complete | 2026-01-30 |
 | 4. Launch Experience | 0/? | Not started | - |
 
 ---

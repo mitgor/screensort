@@ -19,6 +19,8 @@ final class ProcessingViewModel {
     var googleDocsStatus: String?
     var googleDocsError: String?
 
+    private var processingTask: Task<Void, Never>?
+
     /// OCR text snapshots for potential correction learning
     /// Key: asset localIdentifier, Value: array of recognized text strings
     private(set) var ocrSnapshots: [String: [String]] = [:]
@@ -156,6 +158,10 @@ final class ProcessingViewModel {
         isYouTubeAuthenticated = false
     }
 
+    func cancelProcessing() {
+        processingTask?.cancel()
+    }
+
     // MARK: - Processing
 
     func processNow() async {
@@ -180,35 +186,36 @@ final class ProcessingViewModel {
         defer {
             // Re-enable sleep when done
             UIApplication.shared.isIdleTimerDisabled = false
-            print("🏁 [ProcessingViewModel] Processing finished")
+            processingTask = nil
+            isProcessing = false
+            print("[ProcessingViewModel] Processing finished")
         }
 
         do {
-            print("📸 [ProcessingViewModel] Fetching screenshots...")
+            print("[ProcessingViewModel] Fetching screenshots...")
             // 1. Fetch screenshots (excluding already processed ones)
             let allScreenshots = try await photoService.fetchScreenshots()
-            print("📸 [ProcessingViewModel] Found \(allScreenshots.count) total screenshots")
+            print("[ProcessingViewModel] Found \(allScreenshots.count) total screenshots")
 
             let screenshots = allScreenshots.filter { asset in
                 guard let caption = photoService.getCaption(for: asset) else { return true }
                 return !caption.hasPrefix(captionPrefix)
             }
-            print("📸 [ProcessingViewModel] \(screenshots.count) new screenshots to process")
+            print("[ProcessingViewModel] \(screenshots.count) new screenshots to process")
 
             processingProgress = (0, screenshots.count)
 
             guard !screenshots.isEmpty else {
                 lastError = "No new screenshots to process"
-                isProcessing = false
                 return
             }
 
-            print("🎵 [ProcessingViewModel] Getting/creating YouTube playlist...")
+            print("[ProcessingViewModel] Getting/creating YouTube playlist...")
             // 2. Get/create YouTube playlist (for music)
             let playlistId = try await youtubeService.getOrCreatePlaylist(named: playlistName)
-            print("🎵 [ProcessingViewModel] Playlist ID: \(playlistId)")
+            print("[ProcessingViewModel] Playlist ID: \(playlistId)")
 
-            print("📁 [ProcessingViewModel] Creating albums...")
+            print("[ProcessingViewModel] Creating albums...")
             // 3. Create all albums in parallel using TaskGroup
             try await withThrowingTaskGroup(of: Void.self) { group in
                 for type in ScreenshotType.allCases {
@@ -218,17 +225,27 @@ final class ProcessingViewModel {
                 }
                 try await group.waitForAll()
             }
-            print("📁 [ProcessingViewModel] Albums created")
+            print("[ProcessingViewModel] Albums created")
 
-            // 4. Process each screenshot
-            print("🔄 [ProcessingViewModel] Starting screenshot processing...")
-            for (index, asset) in screenshots.enumerated() {
-                print("🔄 [ProcessingViewModel] Processing \(index + 1)/\(screenshots.count)")
-                processingProgress = (index + 1, screenshots.count)
-                let result = await processScreenshot(asset: asset, playlistId: playlistId)
-                results.append(result)
-                print("✅ [ProcessingViewModel] Result: \(result.contentType) - \(result.status)")
+            // 4. Process each screenshot with cancellation support
+            print("[ProcessingViewModel] Starting screenshot processing...")
+            processingTask = Task {
+                for (index, asset) in screenshots.enumerated() {
+                    // Check cancellation BEFORE expensive work
+                    guard !Task.isCancelled else {
+                        print("[ProcessingViewModel] Processing cancelled at item \(index)")
+                        break
+                    }
+
+                    processingProgress = (index + 1, screenshots.count)
+                    print("[ProcessingViewModel] Processing \(index + 1)/\(screenshots.count)")
+                    let result = await processScreenshot(asset: asset, playlistId: playlistId)
+                    results.append(result)
+                    print("[ProcessingViewModel] Result: \(result.contentType) - \(result.status)")
+                }
             }
+
+            await processingTask?.value
 
             // Update Google Doc URL if available
             googleDocURL = googleDocsService.documentURL
@@ -236,8 +253,6 @@ final class ProcessingViewModel {
         } catch {
             lastError = error.localizedDescription
         }
-
-        isProcessing = false
     }
 
     // MARK: - Screenshot Routing

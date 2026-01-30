@@ -22,13 +22,20 @@ Screenshots get classified and organized without manual effort — the app handl
 - ✓ Google Docs logging of processed screenshots — existing
 - ✓ Google OAuth authentication with PKCE — existing
 - ✓ User correction flow for misclassified screenshots — existing
+- ✓ Non-blocking processing with immediate feedback — v1.0
+- ✓ Progress indicator with current/total count — v1.0
+- ✓ Processing cancellation — v1.0
+- ✓ Unknown screenshots stay in original location — v1.0
+- ✓ Instant launch with cached results — v1.0
+- ✓ Skeleton UI during fresh loads — v1.0
+- ✓ Scroll position persistence — v1.0
+- ✓ Processed screenshot tracking — v1.0
+- ✓ Skip previously processed screenshots — v1.0
+- ✓ Cache invalidation on photo deletion — v1.0
 
 ### Active
 
-- [ ] Instant launch showing cached previous results
-- [ ] Progress animation during screenshot processing with count display
-- [ ] Keep unsorted/unknown screenshots in original location (don't move)
-- [ ] Persist processed screenshot IDs to skip on subsequent runs
+(None — awaiting next milestone definition)
 
 ### Out of Scope
 
@@ -36,14 +43,19 @@ Screenshots get classified and organized without manual effort — the app handl
 - Batch correction UI — current single-item correction is sufficient
 - Custom classification rules — hardcoded thresholds work for now
 - Export to formats other than Google Docs — not requested
+- Background processing when app is backgrounded — requires Background Tasks framework
+- Undo for processed screenshots — complexity vs value tradeoff
+- Manual album selection — automatic classification is core value
+- iCloud sync of processing state — local-only is sufficient
+- Notification when processing completes — app must be foregrounded
 
 ## Context
 
-**Current state:** App works end-to-end but has UX friction:
-- App freezes during processing with no feedback (~1 minute)
-- Cold launch shows nothing until initialization completes
-- Unknown screenshots get moved to "Flagged" album instead of staying put
-- Every launch reprocesses all screenshots (no memory of what's done)
+**Current state:** App shipped v1.0 UX Polish milestone with:
+- 8,406 lines of Swift code
+- 4 phases, 8 plans executed
+- All 14 requirements satisfied
+- Background processing, progress display, persistence, and instant launch
 
 **Technical environment:**
 - iOS 18.1+ required (Apple Intelligence)
@@ -64,10 +76,14 @@ Screenshots get classified and organized without manual effort — the app handl
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Cache results list, not full app state | Simpler implementation, results are what users care about | — Pending |
-| Leave unknown screenshots in place | User expectation — don't move things that weren't classified | — Pending |
-| Track processed IDs, not full state | Skip duplicates without complexity of resumable processing | — Pending |
-| Use UserDefaults for processed ID storage | Already used for corrections; consistent pattern | — Pending |
+| Cache results list, not full app state | Simpler implementation, results are what users care about | ✓ Good |
+| Leave unknown screenshots in place | User expectation — don't move things that weren't classified | ✓ Good |
+| Track processed IDs, not full state | Skip duplicates without complexity of resumable processing | ✓ Good |
+| Use UserDefaults for processed ID storage | Already used for corrections; consistent pattern | ✓ Good |
+| Use .userInitiated QoS for OCR dispatch | User is waiting for results | ✓ Good |
+| Stored Task reference for cancellation | Enables cancel button to stop processing | ✓ Good |
+| Show skeleton only when isRefreshing AND results.isEmpty | Prevents flicker when cached data exists | ✓ Good |
+| Save scroll position on disappear, not during scroll | Avoids excessive UserDefaults writes | ✓ Good |
 
 ---
-*Last updated: 2026-01-30 after initialization*
+*Last updated: 2026-01-30 after v1.0 milestone*

@@ -209,10 +209,17 @@ final class ProcessingViewModel {
             let allScreenshots = try await photoService.fetchScreenshots()
             print("[ProcessingViewModel] Found \(allScreenshots.count) total screenshots")
 
+            let processedIDs = ProcessedScreenshotStore.shared.loadProcessedIDs()
             let screenshots = allScreenshots.filter { asset in
-                guard let caption = photoService.getCaption(for: asset) else { return true }
-                return !caption.hasPrefix(captionPrefix)
+                // Skip if already in persisted processed set
+                guard !processedIDs.contains(asset.localIdentifier) else { return false }
+                // Also skip if caption indicates already processed (legacy check)
+                if let caption = photoService.getCaption(for: asset), caption.hasPrefix(captionPrefix) {
+                    return false
+                }
+                return true
             }
+            print("[ProcessingViewModel] Skipped \(processedIDs.count) already-processed screenshots")
             print("[ProcessingViewModel] \(screenshots.count) new screenshots to process")
 
             processingProgress = (0, screenshots.count)
@@ -253,11 +260,18 @@ final class ProcessingViewModel {
                     print("[ProcessingViewModel] Processing \(index + 1)/\(screenshots.count)")
                     let result = await processScreenshot(asset: asset, playlistId: playlistId)
                     results.append(result)
+                    // Mark as processed immediately (survives crash)
+                    ProcessedScreenshotStore.shared.markAsProcessed(asset.localIdentifier)
                     print("[ProcessingViewModel] Result: \(result.contentType) - \(result.status)")
                 }
             }
 
             await processingTask?.value
+
+            // Save results for display on next launch
+            if !results.isEmpty {
+                ProcessedScreenshotStore.shared.saveResults(results)
+            }
 
             // Update Google Doc URL if available
             googleDocURL = googleDocsService.documentURL

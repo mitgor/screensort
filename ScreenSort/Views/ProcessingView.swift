@@ -407,12 +407,34 @@ struct ProcessingView: View {
                                     ? ProcessingResultItem.placeholders
                                     : viewModel.successResults) { result in
                                 CompactResultRow(result: result)
+                                    .id(result.id.uuidString)
                                 Divider()
                                     .padding(.horizontal, AppTheme.spacingSM)
                             }
                         }
+                        .scrollTargetLayout()
                     }
+                    .scrollPosition($scrollPosition)
                     .frame(maxHeight: 300)
+                    .task {
+                        // Restore scroll position on appear
+                        if !lastScrolledResultId.isEmpty && !viewModel.successResults.isEmpty {
+                            try? await Task.sleep(for: .milliseconds(100))
+                            scrollPosition.scrollTo(id: lastScrolledResultId, anchor: .top)
+                        }
+                    }
+                    .onDisappear {
+                        // Save scroll position on disappear
+                        if !currentTopItemId.isEmpty {
+                            lastScrolledResultId = currentTopItemId
+                        }
+                    }
+                    .onChange(of: scrollPosition.viewID(type: String.self)) { _, newId in
+                        // Track scroll position changes
+                        if let id = newId {
+                            currentTopItemId = id
+                        }
+                    }
                 }
                 .redacted(reason: viewModel.isRefreshing && viewModel.successResults.isEmpty ? .placeholder : [])
                 .shimmer()

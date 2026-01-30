@@ -1,0 +1,68 @@
+# Requirements
+
+**Project:** ScreenSort
+**Version:** v1.1 (UX Improvements)
+**Created:** 2026-01-30
+
+## v1 Requirements
+
+### Processing UX (PROC)
+
+- [ ] **PROC-01**: User sees immediate feedback when processing starts (no perceived freeze)
+- [ ] **PROC-02**: User sees progress indicator showing current/total screenshots during processing
+- [ ] **PROC-03**: User can cancel processing at any time during execution
+- [ ] **PROC-04**: Processing runs in background without blocking UI interactions
+
+### Launch Experience (LAUNCH)
+
+- [ ] **LAUNCH-01**: User sees previous results list immediately on app launch (cached state)
+- [ ] **LAUNCH-02**: User sees skeleton/placeholder UI while fresh data loads
+- [ ] **LAUNCH-03**: App restores scroll position and view state from previous session
+
+### Screenshot Organization (ORG)
+
+- [ ] **ORG-01**: Unknown/unclassifiable screenshots remain in original location (not moved)
+- [ ] **ORG-02**: Only successfully classified screenshots are moved to destination albums
+
+### Persistence (PERSIST)
+
+- [ ] **PERSIST-01**: App tracks which screenshots have been processed
+- [ ] **PERSIST-02**: Previously processed screenshots are skipped on subsequent runs
+- [ ] **PERSIST-03**: Processing results are persisted between app launches
+- [ ] **PERSIST-04**: Cache invalidation when source screenshots are deleted
+
+## v2 Requirements (Deferred)
+
+- Offline mode for API lookups — requires significant caching infrastructure
+- Batch correction UI — current single-item correction is sufficient
+- Custom classification rules — hardcoded thresholds work for now
+- Export to formats other than Google Docs — not requested
+- Background processing when app is backgrounded — requires Background Tasks framework
+
+## Out of Scope
+
+- Undo for processed screenshots — complexity vs value tradeoff
+- Manual album selection — automatic classification is core value
+- iCloud sync of processing state — local-only is sufficient
+- Notification when processing completes — app must be foregrounded
+
+## Traceability
+
+| Requirement | Phase | Plan | Status |
+|-------------|-------|------|--------|
+| PROC-01 | 1 | — | Pending |
+| PROC-02 | 2 | — | Pending |
+| PROC-03 | 1 | — | Pending |
+| PROC-04 | 1 | — | Pending |
+| LAUNCH-01 | 4 | — | Pending |
+| LAUNCH-02 | 4 | — | Pending |
+| LAUNCH-03 | 4 | — | Pending |
+| ORG-01 | 1 | — | Pending |
+| ORG-02 | 1 | — | Pending |
+| PERSIST-01 | 3 | — | Pending |
+| PERSIST-02 | 3 | — | Pending |
+| PERSIST-03 | 3 | — | Pending |
+| PERSIST-04 | 3 | — | Pending |
+
+---
+*Last updated: 2026-01-30 after requirements definition*

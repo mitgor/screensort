@@ -78,6 +78,11 @@ struct ProcessingView: View {
             // Only animate UI state changes, not data changes (prevents layout thrashing)
             .animation(.spring(response: 0.5, dampingFraction: 0.8), value: viewModel.isProcessing)
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.lastError != nil)
+            .sensoryFeedback(.success, trigger: viewModel.isProcessing) { oldValue, newValue in
+                // Fire only when processing completes successfully (true -> false) with results
+                // Do NOT fire on cancellation (which would have empty results)
+                oldValue == true && newValue == false && !viewModel.results.isEmpty
+            }
         }
     }
 

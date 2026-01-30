@@ -10,7 +10,7 @@ ScreenSort has working AI-powered screenshot classification but suffers from a c
 - Integer phases (1, 2, 3, 4): Planned milestone work
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Fix UI Freeze** - Make processing non-blocking with cancel support
+- [x] **Phase 1: Fix UI Freeze** - Make processing non-blocking with cancel support
 - [ ] **Phase 2: Progress Indicators** - Show processing progress with count display
 - [ ] **Phase 3: State Persistence** - Track processed screenshots, persist results
 - [ ] **Phase 4: Launch Experience** - Instant launch with cached results
@@ -30,8 +30,8 @@ ScreenSort has working AI-powered screenshot classification but suffers from a c
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Move Vision OCR to background thread
-- [ ] 01-02-PLAN.md — Add cancellation support, fix unknown handling, add cancel button
+- [x] 01-01-PLAN.md — Move Vision OCR to background thread
+- [x] 01-02-PLAN.md — Add cancellation support, fix unknown handling, add cancel button
 
 ### Phase 2: Progress Indicators
 **Goal**: Users know exactly how many screenshots have been processed and how many remain
@@ -80,10 +80,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Fix UI Freeze | 0/2 | Planned | - |
+| 1. Fix UI Freeze | 2/2 | Complete | 2026-01-30 |
 | 2. Progress Indicators | 0/? | Not started | - |
 | 3. State Persistence | 0/? | Not started | - |
 | 4. Launch Experience | 0/? | Not started | - |
 
 ---
-*Last updated: 2026-01-30 after Phase 1 planning*
+*Last updated: 2026-01-30 after Phase 1 execution complete*

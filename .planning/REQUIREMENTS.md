@@ -8,10 +8,10 @@
 
 ### Processing UX (PROC)
 
-- [ ] **PROC-01**: User sees immediate feedback when processing starts (no perceived freeze)
+- [x] **PROC-01**: User sees immediate feedback when processing starts (no perceived freeze)
 - [ ] **PROC-02**: User sees progress indicator showing current/total screenshots during processing
-- [ ] **PROC-03**: User can cancel processing at any time during execution
-- [ ] **PROC-04**: Processing runs in background without blocking UI interactions
+- [x] **PROC-03**: User can cancel processing at any time during execution
+- [x] **PROC-04**: Processing runs in background without blocking UI interactions
 
 ### Launch Experience (LAUNCH)
 
@@ -21,8 +21,8 @@
 
 ### Screenshot Organization (ORG)
 
-- [ ] **ORG-01**: Unknown/unclassifiable screenshots remain in original location (not moved)
-- [ ] **ORG-02**: Only successfully classified screenshots are moved to destination albums
+- [x] **ORG-01**: Unknown/unclassifiable screenshots remain in original location (not moved)
+- [x] **ORG-02**: Only successfully classified screenshots are moved to destination albums
 
 ### Persistence (PERSIST)
 
@@ -50,19 +50,19 @@
 
 | Requirement | Phase | Plan | Status |
 |-------------|-------|------|--------|
-| PROC-01 | 1 | - | Pending |
-| PROC-02 | 2 | - | Pending |
-| PROC-03 | 1 | - | Pending |
-| PROC-04 | 1 | - | Pending |
-| LAUNCH-01 | 4 | - | Pending |
-| LAUNCH-02 | 4 | - | Pending |
-| LAUNCH-03 | 4 | - | Pending |
-| ORG-01 | 1 | - | Pending |
-| ORG-02 | 1 | - | Pending |
-| PERSIST-01 | 3 | - | Pending |
-| PERSIST-02 | 3 | - | Pending |
-| PERSIST-03 | 3 | - | Pending |
-| PERSIST-04 | 3 | - | Pending |
+| PROC-01 | 1 | 01-01, 01-02 | Complete |
+| PROC-02 | 2 | — | Pending |
+| PROC-03 | 1 | 01-02 | Complete |
+| PROC-04 | 1 | 01-01, 01-02 | Complete |
+| LAUNCH-01 | 4 | — | Pending |
+| LAUNCH-02 | 4 | — | Pending |
+| LAUNCH-03 | 4 | — | Pending |
+| ORG-01 | 1 | 01-02 | Complete |
+| ORG-02 | 1 | 01-02 | Complete |
+| PERSIST-01 | 3 | — | Pending |
+| PERSIST-02 | 3 | — | Pending |
+| PERSIST-03 | 3 | — | Pending |
+| PERSIST-04 | 3 | — | Pending |
 
 ---
 *Last updated: 2026-01-30 after roadmap creation*

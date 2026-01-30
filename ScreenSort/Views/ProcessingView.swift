@@ -393,12 +393,14 @@ struct ProcessingView: View {
                 }
             }
 
-            // Scrollable list of successful results only
-            if !viewModel.successResults.isEmpty {
+            // Scrollable list of successful results only (or skeleton placeholders during refresh)
+            if !viewModel.successResults.isEmpty || (viewModel.isRefreshing && viewModel.successResults.isEmpty) {
                 GlassCard(padding: AppTheme.spacingSM) {
                     ScrollView {
                         LazyVStack(spacing: 0) {
-                            ForEach(viewModel.successResults) { result in
+                            ForEach(viewModel.isRefreshing && viewModel.successResults.isEmpty
+                                    ? ProcessingResultItem.placeholders
+                                    : viewModel.successResults) { result in
                                 CompactResultRow(result: result)
                                 Divider()
                                     .padding(.horizontal, AppTheme.spacingSM)
@@ -407,6 +409,8 @@ struct ProcessingView: View {
                     }
                     .frame(maxHeight: 300)
                 }
+                .redacted(reason: viewModel.isRefreshing && viewModel.successResults.isEmpty ? .placeholder : [])
+                .shimmer()
             }
         }
     }

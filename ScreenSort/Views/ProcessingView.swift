@@ -13,6 +13,11 @@ struct ProcessingView: View {
     @State private var correctionViewModel = CorrectionReviewViewModel()
     @State private var showingReviewSheet = false
 
+    // Scroll position persistence
+    @AppStorage("ScreenSort.LastScrolledResultId") private var lastScrolledResultId: String = ""
+    @State private var scrollPosition = ScrollPosition(idType: String.self)
+    @State private var currentTopItemId: String = ""
+
     var body: some View {
         NavigationStack {
             ZStack {

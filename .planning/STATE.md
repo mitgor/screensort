@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Screenshots get classified and organized without manual effort
-**Current focus:** Phase 4 - Launch Experience
+**Current focus:** Phase 4 - Launch Experience (COMPLETE)
 
 ## Current Position
 
 Phase: 4 of 4 (Launch Experience)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-01-30 - Completed 04-01-PLAN.md
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-01-30 - Completed 04-02-PLAN.md
 
-Progress: [######----] 60%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 1.5 min
-- Total execution time: 9 min
+- Total plans completed: 7
+- Average duration: 1.4 min
+- Total execution time: 10 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [######----] 60%
 | 01-fix-ui-freeze | 2 | 3 min | 1.5 min |
 | 02-progress-indicators | 1 | <1 min | <1 min |
 | 03-state-persistence | 2 | 4 min | 2 min |
-| 04-launch-experience | 1 | 1 min | 1 min |
+| 04-launch-experience | 2 | 2 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (<1 min), 03-01 (2 min), 03-02 (2 min), 04-01 (1 min)
-- Trend: Stable at ~1.5 min/plan
+- Last 5 plans: 03-01 (2 min), 03-02 (2 min), 04-01 (1 min), 04-02 (1 min)
+- Trend: Stable at ~1.4 min/plan
 
 *Updated after each plan completion*
 
@@ -62,20 +62,23 @@ Recent decisions affecting current work:
 - [03-02]: Mark each screenshot processed immediately after success (crash safety)
 - [03-02]: Save results after batch completes (reduces write frequency)
 - [04-01]: Show skeleton only when isRefreshing AND successResults.isEmpty (prevents flicker)
+- [04-02]: Use iOS 18 ScrollPosition API for native scroll tracking
+- [04-02]: Save scroll position on disappear, not during scroll (avoids excessive writes)
+- [04-02]: Use UUID string as stable scroll target ID
 
 ### Pending Todos
 
-None yet.
+None - all phases complete.
 
 ### Blockers/Concerns
 
-None yet.
+None - project complete.
 
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 04-01-PLAN.md
+Stopped at: Completed 04-02-PLAN.md (Final plan)
 Resume file: None
 
 ---
-*Last updated: 2026-01-30 after 04-01-PLAN.md completion*
+*Last updated: 2026-01-30 after 04-02-PLAN.md completion*

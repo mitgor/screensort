@@ -41,54 +41,62 @@ final class OCRService: OCRServiceProtocol, Sendable {
             options: [:]
         )
 
-        // Perform recognition (synchronous but CPU-intensive)
-        do {
-            try handler.perform([request])
-        } catch {
-            throw OCRError.recognitionFailed(reason: error.localizedDescription)
-        }
+        // Perform recognition on background thread to avoid blocking UI
+        return try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    // Perform recognition (synchronous but now on background thread)
+                    try handler.perform([request])
 
-        // Extract results
-        guard let results = request.results, !results.isEmpty else {
-            throw OCRError.noTextFound
-        }
+                    // Extract results
+                    guard let results = request.results, !results.isEmpty else {
+                        continuation.resume(throwing: OCRError.noTextFound)
+                        return
+                    }
 
-        // Map Vision results to TextObservation
-        let observations = results.compactMap { observation -> TextObservation? in
-            guard let candidate = observation.topCandidates(1).first else {
-                return nil
+                    // Map Vision results to TextObservation
+                    let observations = results.compactMap { observation -> TextObservation? in
+                        guard let candidate = observation.topCandidates(1).first else {
+                            return nil
+                        }
+
+                        // Skip empty text
+                        guard !candidate.string.trimmingCharacters(in: .whitespaces).isEmpty else {
+                            return nil
+                        }
+
+                        // Filter by minimum confidence
+                        guard candidate.confidence >= minimumConfidence else {
+                            return nil
+                        }
+
+                        return TextObservation(
+                            text: candidate.string,
+                            confidence: candidate.confidence,
+                            boundingBox: observation.boundingBox
+                        )
+                    }
+
+                    guard !observations.isEmpty else {
+                        continuation.resume(throwing: OCRError.noTextFound)
+                        return
+                    }
+
+                    // Log warning if all observations have very low confidence
+                    let maxConfidence = observations.map { $0.confidence }.max() ?? 0.0
+                    if maxConfidence < 0.3 {
+                        print("[OCRService] Warning: All text observations have confidence < 0.3. Image quality may be poor.")
+                    }
+
+                    // Sort by vertical position (top to bottom on screen)
+                    // Vision coordinates have origin at bottom-left, so sort by descending y
+                    let sortedObservations = observations.sorted { $0.boundingBox.origin.y > $1.boundingBox.origin.y }
+                    continuation.resume(returning: sortedObservations)
+                } catch {
+                    continuation.resume(throwing: OCRError.recognitionFailed(reason: error.localizedDescription))
+                }
             }
-
-            // Skip empty text
-            guard !candidate.string.trimmingCharacters(in: .whitespaces).isEmpty else {
-                return nil
-            }
-
-            // Filter by minimum confidence
-            guard candidate.confidence >= minimumConfidence else {
-                return nil
-            }
-
-            return TextObservation(
-                text: candidate.string,
-                confidence: candidate.confidence,
-                boundingBox: observation.boundingBox
-            )
         }
-
-        guard !observations.isEmpty else {
-            throw OCRError.noTextFound
-        }
-
-        // Log warning if all observations have very low confidence
-        let maxConfidence = observations.map { $0.confidence }.max() ?? 0.0
-        if maxConfidence < 0.3 {
-            print("[OCRService] Warning: All text observations have confidence < 0.3. Image quality may be poor.")
-        }
-
-        // Sort by vertical position (top to bottom on screen)
-        // Vision coordinates have origin at bottom-left, so sort by descending y
-        return observations.sorted { $0.boundingBox.origin.y > $1.boundingBox.origin.y }
     }
 
     /// Extract all text from a PHAsset by loading full-resolution image

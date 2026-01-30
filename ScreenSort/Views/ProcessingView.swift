@@ -284,6 +284,16 @@ struct ProcessingView: View {
                 }
                 .frame(height: 6)
 
+                // Native ProgressView for accessibility (VoiceOver announces progress)
+                ProgressView(
+                    value: Double(viewModel.processingProgress.current),
+                    total: Double(max(viewModel.processingProgress.total, 1))
+                )
+                .progressViewStyle(.linear)
+                .tint(Color(hex: "6366F1"))
+                .accessibilityLabel("Processing progress")
+                .accessibilityValue("\(viewModel.processingProgress.current) of \(viewModel.processingProgress.total) screenshots")
+
                 Text("\(viewModel.processingProgress.current) of \(viewModel.processingProgress.total) screenshots")
                     .font(.caption)
                     .foregroundStyle(.secondary)

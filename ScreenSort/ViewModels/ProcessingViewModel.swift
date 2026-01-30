@@ -132,6 +132,18 @@ final class ProcessingViewModel {
         photoPermissionStatus = photoService.authorizationStatus()
         isYouTubeAuthenticated = authService.isAuthenticated
         googleDocURL = googleDocsService.documentURL
+
+        // Load cached results from previous session
+        let cachedResults = ProcessedScreenshotStore.shared.loadResults()
+        if !cachedResults.isEmpty {
+            self.results = cachedResults
+        }
+        print("[ProcessingViewModel] Loaded \(cachedResults.count) cached results, \(ProcessedScreenshotStore.shared.loadProcessedIDs().count) processed IDs")
+
+        // Clean up stale entries for deleted photos (async, non-blocking)
+        Task {
+            ProcessedScreenshotStore.shared.cleanupDeletedAssets()
+        }
     }
 
     // MARK: - Photo Permissions

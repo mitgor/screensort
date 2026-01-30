@@ -56,6 +56,7 @@
 		A10000AC0000000000000CA /* CorrectionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000AD0000000000000DA /* CorrectionSheet.swift */; };
 		A10000AE0000000000000EA /* AsyncThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000AF0000000000000FA /* AsyncThumbnailView.swift */; };
 		A10000B00000000000000GA /* ReviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000B10000000000000HA /* ReviewCard.swift */; };
+		A10000B20000000000000JA /* ProcessedScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000B30000000000000KA /* ProcessedScreenshotStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,6 +124,7 @@
 		A10000AD0000000000000DA /* CorrectionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionSheet.swift; sourceTree = "<group>"; };
 		A10000AF0000000000000FA /* AsyncThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncThumbnailView.swift; sourceTree = "<group>"; };
 		A10000B10000000000000HA /* ReviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewCard.swift; sourceTree = "<group>"; };
+		A10000B30000000000000KA /* ProcessedScreenshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessedScreenshotStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -232,6 +234,7 @@
 				A10000A300000000000003A /* CorrectionStore.swift */,
 				A10000A500000000000005A /* CorrectionService.swift */,
 				A10000A700000000000007A /* AIScreenshotClassifier.swift */,
+				A10000B30000000000000KA /* ProcessedScreenshotStore.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -438,6 +441,7 @@
 				A10000AC0000000000000CA /* CorrectionSheet.swift in Sources */,
 				A10000AE0000000000000EA /* AsyncThumbnailView.swift in Sources */,
 				A10000B00000000000000GA /* ReviewCard.swift in Sources */,
+				A10000B20000000000000JA /* ProcessedScreenshotStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

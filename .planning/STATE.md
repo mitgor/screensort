@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Screenshots get classified and organized without manual effort
-**Current focus:** Phase 4 - Launch Experience (COMPLETE)
+**Current focus:** Phase 4 - Launch Experience (COMPLETE - all gaps closed)
 
 ## Current Position
 
 Phase: 4 of 4 (Launch Experience)
-Plan: 2 of 2 in current phase
+Plan: 3 of 3 in current phase (gap closure complete)
 Status: Phase complete
-Last activity: 2026-01-30 - Completed 04-02-PLAN.md
+Last activity: 2026-01-30 - Completed 04-03-PLAN.md (gap closure)
 
 Progress: [##########] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 1.4 min
-- Total execution time: 10 min
+- Total plans completed: 8
+- Average duration: 1.5 min
+- Total execution time: 12 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [##########] 100%
 | 01-fix-ui-freeze | 2 | 3 min | 1.5 min |
 | 02-progress-indicators | 1 | <1 min | <1 min |
 | 03-state-persistence | 2 | 4 min | 2 min |
-| 04-launch-experience | 2 | 2 min | 1 min |
+| 04-launch-experience | 3 | 4 min | 1.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (2 min), 03-02 (2 min), 04-01 (1 min), 04-02 (1 min)
-- Trend: Stable at ~1.4 min/plan
+- Last 5 plans: 03-02 (2 min), 04-01 (1 min), 04-02 (1 min), 04-03 (2 min)
+- Trend: Stable at ~1.5 min/plan
 
 *Updated after each plan completion*
 
@@ -65,10 +65,13 @@ Recent decisions affecting current work:
 - [04-02]: Use iOS 18 ScrollPosition API for native scroll tracking
 - [04-02]: Save scroll position on disappear, not during scroll (avoids excessive writes)
 - [04-02]: Use UUID string as stable scroll target ID
+- [04-03]: Set isRefreshing = true only when results.isEmpty (aligns with 04-01 skeleton decision)
+- [04-03]: Use defer block for isRefreshing = false (ensures cleanup on all code paths)
+- [04-03]: Trigger refreshInBackground after cleanupDeletedAssets in same Task
 
 ### Pending Todos
 
-None - all phases complete.
+None - all phases and gaps complete.
 
 ### Blockers/Concerns
 
@@ -77,8 +80,8 @@ None - project complete.
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 04-02-PLAN.md (Final plan)
+Stopped at: Completed 04-03-PLAN.md (Gap closure - final plan)
 Resume file: None
 
 ---
-*Last updated: 2026-01-30 after 04-02-PLAN.md completion*
+*Last updated: 2026-01-30 after 04-03-PLAN.md completion*

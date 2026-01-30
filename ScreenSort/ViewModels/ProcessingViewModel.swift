@@ -141,9 +141,65 @@ final class ProcessingViewModel {
         }
         print("[ProcessingViewModel] Loaded \(cachedResults.count) cached results, \(ProcessedScreenshotStore.shared.loadProcessedIDs().count) processed IDs")
 
-        // Clean up stale entries for deleted photos (async, non-blocking)
+        // Clean up stale entries, then check for new screenshots
         Task {
             ProcessedScreenshotStore.shared.cleanupDeletedAssets()
+            await refreshInBackground()
+        }
+    }
+
+    // MARK: - Background Refresh
+
+    /// Checks for and processes new screenshots in background without clearing existing results.
+    /// Sets isRefreshing to enable skeleton UI when no results exist.
+    func refreshInBackground() async {
+        guard hasPhotoAccess else { return }
+        guard isYouTubeAuthenticated else { return }
+        guard !isProcessing else { return }  // Don't refresh during full processing
+
+        // Only show skeleton if we have no results to display
+        if results.isEmpty {
+            isRefreshing = true
+        }
+
+        defer {
+            isRefreshing = false
+        }
+
+        do {
+            // Fetch all screenshots
+            let allScreenshots = try await photoService.fetchScreenshots()
+
+            // Filter to only unprocessed ones
+            let processedIDs = ProcessedScreenshotStore.shared.loadProcessedIDs()
+            let newScreenshots = allScreenshots.filter { asset in
+                !processedIDs.contains(asset.localIdentifier)
+            }
+
+            guard !newScreenshots.isEmpty else {
+                print("[ProcessingViewModel] No new screenshots to refresh")
+                return
+            }
+
+            print("[ProcessingViewModel] Background refresh: \(newScreenshots.count) new screenshots")
+
+            // Get/create playlist for music screenshots
+            let playlistId = try await youtubeService.getOrCreatePlaylist(named: playlistName)
+
+            // Process each new screenshot
+            for asset in newScreenshots {
+                let result = await processScreenshot(asset: asset, playlistId: playlistId)
+                results.append(result)
+                ProcessedScreenshotStore.shared.markAsProcessed(asset.localIdentifier)
+            }
+
+            // Save updated results
+            if !results.isEmpty {
+                ProcessedScreenshotStore.shared.saveResults(results)
+            }
+
+        } catch {
+            print("[ProcessingViewModel] Background refresh error: \(error.localizedDescription)")
         }
     }
 

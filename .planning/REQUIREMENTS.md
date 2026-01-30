@@ -50,19 +50,19 @@
 
 | Requirement | Phase | Plan | Status |
 |-------------|-------|------|--------|
-| PROC-01 | 1 | — | Pending |
-| PROC-02 | 2 | — | Pending |
-| PROC-03 | 1 | — | Pending |
-| PROC-04 | 1 | — | Pending |
-| LAUNCH-01 | 4 | — | Pending |
-| LAUNCH-02 | 4 | — | Pending |
-| LAUNCH-03 | 4 | — | Pending |
-| ORG-01 | 1 | — | Pending |
-| ORG-02 | 1 | — | Pending |
-| PERSIST-01 | 3 | — | Pending |
-| PERSIST-02 | 3 | — | Pending |
-| PERSIST-03 | 3 | — | Pending |
-| PERSIST-04 | 3 | — | Pending |
+| PROC-01 | 1 | - | Pending |
+| PROC-02 | 2 | - | Pending |
+| PROC-03 | 1 | - | Pending |
+| PROC-04 | 1 | - | Pending |
+| LAUNCH-01 | 4 | - | Pending |
+| LAUNCH-02 | 4 | - | Pending |
+| LAUNCH-03 | 4 | - | Pending |
+| ORG-01 | 1 | - | Pending |
+| ORG-02 | 1 | - | Pending |
+| PERSIST-01 | 3 | - | Pending |
+| PERSIST-02 | 3 | - | Pending |
+| PERSIST-03 | 3 | - | Pending |
+| PERSIST-04 | 3 | - | Pending |
 
 ---
-*Last updated: 2026-01-30 after requirements definition*
+*Last updated: 2026-01-30 after roadmap creation*

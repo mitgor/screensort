@@ -27,10 +27,11 @@ ScreenSort has working AI-powered screenshot classification but suffers from a c
   3. User sees immediate visual feedback when processing starts (no freeze)
   4. Unknown/unclassifiable screenshots remain in their original album
   5. Only successfully classified screenshots are moved to destination albums
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md — Move Vision OCR to background thread
+- [ ] 01-02-PLAN.md — Add cancellation support, fix unknown handling, add cancel button
 
 ### Phase 2: Progress Indicators
 **Goal**: Users know exactly how many screenshots have been processed and how many remain
@@ -79,10 +80,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Fix UI Freeze | 0/? | Not started | - |
+| 1. Fix UI Freeze | 0/2 | Planned | - |
 | 2. Progress Indicators | 0/? | Not started | - |
 | 3. State Persistence | 0/? | Not started | - |
 | 4. Launch Experience | 0/? | Not started | - |
 
 ---
-*Last updated: 2026-01-30 after roadmap creation*
+*Last updated: 2026-01-30 after Phase 1 planning*

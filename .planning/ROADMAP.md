@@ -55,10 +55,11 @@ Plans:
   2. User processes 50 screenshots, relaunches, and reprocessing skips all 50
   3. User deletes source screenshots, and stale cached results are cleaned up
   4. Processed screenshot IDs persist across app launches
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Create ProcessedScreenshotStore and add Codable conformance
+- [ ] 03-02-PLAN.md — Integrate persistence into ProcessingViewModel
 
 ### Phase 4: Launch Experience
 **Goal**: App launches instantly with previous results visible; loading state is polished
@@ -82,8 +83,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Fix UI Freeze | 2/2 | Complete | 2026-01-30 |
 | 2. Progress Indicators | 1/1 | Complete | 2026-01-30 |
-| 3. State Persistence | 0/? | Not started | - |
+| 3. State Persistence | 0/2 | Planned | - |
 | 4. Launch Experience | 0/? | Not started | - |
 
 ---
-*Last updated: 2026-01-30 after Phase 2 planning*
+*Last updated: 2026-01-30 after Phase 3 planning*

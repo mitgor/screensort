@@ -9,29 +9,30 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 
 ## Current Position
 
-Phase: 1 of 4 (Fix UI Freeze)
-Plan: 2 of 2 in current phase
-Status: Phase 1 complete - ready for Phase 2
-Last activity: 2026-01-30 - Completed 01-02-PLAN.md
+Phase: 2 of 4 (Progress Indicators)
+Plan: 1 of 1 in current phase
+Status: Phase 2 complete - ready for Phase 3
+Last activity: 2026-01-30 - Completed 02-01-PLAN.md
 
-Progress: [##--------] 20%
+Progress: [###-------] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 1.5 min
-- Total execution time: 3 min
+- Total plans completed: 3
+- Average duration: 1.3 min
+- Total execution time: 4 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-fix-ui-freeze | 2 | 3 min | 1.5 min |
+| 02-progress-indicators | 1 | <1 min | <1 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2 min), 01-02 (1 min)
-- Trend: Accelerating (50% faster)
+- Last 5 plans: 01-01 (2 min), 01-02 (1 min), 02-01 (<1 min)
+- Trend: Accelerating (67% faster over last 3)
 
 *Updated after each plan completion*
 
@@ -49,6 +50,9 @@ Recent decisions affecting current work:
 - [01-02]: Stored processingTask reference in ViewModel for cancellation control
 - [01-02]: Check Task.isCancelled at start of each iteration (before expensive work)
 - [01-02]: Unknown screenshots remain in original album per ORG-01/ORG-02 requirements
+- [02-01]: Kept both custom gradient Capsule and native ProgressView for visual + accessibility coverage
+- [02-01]: Used !viewModel.results.isEmpty condition to prevent haptic on cancellation
+- [02-01]: Applied .success haptic type (distinct from .impact on Process button)
 
 ### Pending Todos
 
@@ -61,8 +65,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 01-02-PLAN.md (Phase 1 complete)
-Resume file: None (Phase 1 complete - ready for Phase 2)
+Stopped at: Completed 02-01-PLAN.md (Phase 2 complete)
+Resume file: None (Phase 2 complete - ready for Phase 3)
 
 ---
-*Last updated: 2026-01-30 after 01-02-PLAN.md completion*
+*Last updated: 2026-01-30 after 02-01-PLAN.md completion*

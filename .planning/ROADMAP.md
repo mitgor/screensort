@@ -69,10 +69,11 @@ Plans:
   1. User launches app and immediately sees previous session's results (no loading delay)
   2. User sees skeleton/placeholder UI while fresh data loads in background
   3. User's scroll position from previous session is restored on launch
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md — Add skeleton loading UI with shimmer for results section
+- [ ] 04-02-PLAN.md — Implement scroll position persistence
 
 ## Progress
 
@@ -84,7 +85,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Fix UI Freeze | 2/2 | Complete | 2026-01-30 |
 | 2. Progress Indicators | 1/1 | Complete | 2026-01-30 |
 | 3. State Persistence | 2/2 | Complete | 2026-01-30 |
-| 4. Launch Experience | 0/? | Not started | - |
+| 4. Launch Experience | 0/2 | Not started | - |
 
 ---
-*Last updated: 2026-01-30 after Phase 3 planning*
+*Last updated: 2026-01-30 after Phase 4 planning*

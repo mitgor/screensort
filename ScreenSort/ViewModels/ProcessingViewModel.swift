@@ -558,8 +558,8 @@ final class ProcessingViewModel {
 
 // MARK: - Result Item
 
-struct ProcessingResultItem: Identifiable, Sendable {
-    let id = UUID()
+struct ProcessingResultItem: Identifiable, Codable, Sendable {
+    let id: UUID
     let assetId: String
     let status: Status
     let contentType: ScreenshotType
@@ -568,7 +568,26 @@ struct ProcessingResultItem: Identifiable, Sendable {
     let message: String
     let serviceLink: String?
 
-    enum Status: Sendable {
+    init(
+        assetId: String,
+        status: Status,
+        contentType: ScreenshotType,
+        title: String?,
+        creator: String?,
+        message: String,
+        serviceLink: String?
+    ) {
+        self.id = UUID()
+        self.assetId = assetId
+        self.status = status
+        self.contentType = contentType
+        self.title = title
+        self.creator = creator
+        self.message = message
+        self.serviceLink = serviceLink
+    }
+
+    enum Status: String, Codable, Sendable {
         case success
         case flagged
         case failed

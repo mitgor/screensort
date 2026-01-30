@@ -1,7 +1,7 @@
 import Foundation
 
 /// Categories for screenshot classification
-enum ScreenshotType: String, CaseIterable {
+enum ScreenshotType: String, CaseIterable, Codable {
     case music
     case movie
     case book

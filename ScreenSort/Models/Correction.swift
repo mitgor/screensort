@@ -93,7 +93,3 @@ struct Correction: Codable, Identifiable, Sendable {
         correctedCreator ?? originalCreator
     }
 }
-
-// MARK: - ScreenshotType Codable Conformance
-
-extension ScreenshotType: Codable {}

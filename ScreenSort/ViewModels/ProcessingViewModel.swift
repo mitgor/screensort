@@ -12,6 +12,7 @@ final class ProcessingViewModel {
     var photoPermissionStatus: PHAuthorizationStatus = .notDetermined
     var isYouTubeAuthenticated = false
     var isProcessing = false
+    var isRefreshing = false
     var processingProgress: (current: Int, total: Int) = (0, 0)
     var lastError: String?
     var results: [ProcessingResultItem] = []
@@ -617,5 +618,27 @@ struct ProcessingResultItem: Identifiable, Codable, Sendable {
         case success
         case flagged
         case failed
+    }
+}
+
+// MARK: - Placeholder Support
+
+extension ProcessingResultItem {
+    /// Creates a placeholder item for skeleton UI display
+    static func placeholder(index: Int) -> ProcessingResultItem {
+        ProcessingResultItem(
+            assetId: "placeholder-\(index)",
+            status: .success,
+            contentType: .music,
+            title: String(repeating: "X", count: 18),
+            creator: String(repeating: "X", count: 12),
+            message: "Loading...",
+            serviceLink: nil
+        )
+    }
+
+    /// Returns 5 placeholder items for skeleton loading state
+    static var placeholders: [ProcessingResultItem] {
+        (0..<5).map { ProcessingResultItem.placeholder(index: $0) }
     }
 }

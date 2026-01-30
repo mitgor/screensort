@@ -287,6 +287,25 @@ struct ProcessingView: View {
                 Text("\(viewModel.processingProgress.current) of \(viewModel.processingProgress.total) screenshots")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                // Cancel button
+                Button(action: {
+                    viewModel.cancelProcessing()
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.subheadline)
+                        Text("Cancel")
+                            .font(.subheadline.weight(.medium))
+                    }
+                    .foregroundStyle(.red)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.red.opacity(0.1))
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .padding(.top, AppTheme.spacingSM)
             }
         }
     }

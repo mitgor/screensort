@@ -460,32 +460,19 @@ final class ProcessingViewModel {
     // MARK: - Unknown Processing
 
     private func processUnknownScreenshot(asset: PHAsset) async -> ProcessingResultItem {
-        do {
-            try await photoService.addAsset(asset, toAlbum: ScreenshotType.unknown.albumName)
+        // Do NOT move to any album - leave in original location (ORG-01)
+        let caption = buildCaption(type: "Unknown", title: nil, creator: nil, status: "Could not classify")
+        try? await photoService.setCaption(caption, for: asset)
 
-            let caption = buildCaption(type: "Unknown", title: nil, creator: nil, status: "Could not classify")
-            try? await photoService.setCaption(caption, for: asset)
-
-            return ProcessingResultItem(
-                assetId: asset.localIdentifier,
-                status: .flagged,
-                contentType: .unknown,
-                title: nil,
-                creator: nil,
-                message: "Could not classify screenshot",
-                serviceLink: nil
-            )
-        } catch {
-            return ProcessingResultItem(
-                assetId: asset.localIdentifier,
-                status: .failed,
-                contentType: .unknown,
-                title: nil,
-                creator: nil,
-                message: error.localizedDescription,
-                serviceLink: nil
-            )
-        }
+        return ProcessingResultItem(
+            assetId: asset.localIdentifier,
+            status: .flagged,
+            contentType: .unknown,
+            title: nil,
+            creator: nil,
+            message: "Could not classify screenshot",
+            serviceLink: nil
+        )
     }
 
     // MARK: - Error Handling
@@ -495,8 +482,7 @@ final class ProcessingViewModel {
         contentType: ScreenshotType,
         error: Error
     ) async -> ProcessingResultItem {
-        try? await photoService.addAsset(asset, toAlbum: ScreenshotType.unknown.albumName)
-
+        // Do NOT move to any album - leave in original location (ORG-01)
         let caption = buildCaption(
             type: contentType.displayName,
             title: nil,
@@ -517,8 +503,7 @@ final class ProcessingViewModel {
     }
 
     private func handleProcessingError(asset: PHAsset, error: Error) async -> ProcessingResultItem {
-        try? await photoService.addAsset(asset, toAlbum: ScreenshotType.unknown.albumName)
-
+        // Do NOT move to any album - leave in original location (ORG-01)
         let caption = buildCaption(type: "Unknown", title: nil, creator: nil, status: "Error: \(error.localizedDescription)")
         try? await photoService.setCaption(caption, for: asset)
 

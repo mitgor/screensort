@@ -41,10 +41,10 @@ Plans:
   1. User sees "X of Y screenshots" count during processing
   2. Progress indicator updates smoothly without UI stutter
   3. User receives haptic feedback when processing completes
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md — Add native ProgressView and completion haptic
 
 ### Phase 3: State Persistence
 **Goal**: Processing results survive app termination; previously processed screenshots are skipped
@@ -81,9 +81,9 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Fix UI Freeze | 2/2 | Complete | 2026-01-30 |
-| 2. Progress Indicators | 0/? | Not started | - |
+| 2. Progress Indicators | 0/1 | Planned | - |
 | 3. State Persistence | 0/? | Not started | - |
 | 4. Launch Experience | 0/? | Not started | - |
 
 ---
-*Last updated: 2026-01-30 after Phase 1 execution complete*
+*Last updated: 2026-01-30 after Phase 2 planning*

@@ -15,9 +15,9 @@
 
 ### Launch Experience (LAUNCH)
 
-- [ ] **LAUNCH-01**: User sees previous results list immediately on app launch (cached state)
-- [ ] **LAUNCH-02**: User sees skeleton/placeholder UI while fresh data loads
-- [ ] **LAUNCH-03**: App restores scroll position and view state from previous session
+- [x] **LAUNCH-01**: User sees previous results list immediately on app launch (cached state)
+- [x] **LAUNCH-02**: User sees skeleton/placeholder UI while fresh data loads
+- [x] **LAUNCH-03**: App restores scroll position and view state from previous session
 
 ### Screenshot Organization (ORG)
 
@@ -54,9 +54,9 @@
 | PROC-02 | 2 | 02-01 | Complete |
 | PROC-03 | 1 | 01-02 | Complete |
 | PROC-04 | 1 | 01-01, 01-02 | Complete |
-| LAUNCH-01 | 4 | — | Pending |
-| LAUNCH-02 | 4 | — | Pending |
-| LAUNCH-03 | 4 | — | Pending |
+| LAUNCH-01 | 4 | 04-01, 04-03 | Complete |
+| LAUNCH-02 | 4 | 04-01, 04-03 | Complete |
+| LAUNCH-03 | 4 | 04-02 | Complete |
 | ORG-01 | 1 | 01-02 | Complete |
 | ORG-02 | 1 | 01-02 | Complete |
 | PERSIST-01 | 3 | 03-01, 03-02 | Complete |
@@ -65,4 +65,4 @@
 | PERSIST-04 | 3 | 03-01, 03-02 | Complete |
 
 ---
-*Last updated: 2026-01-30 after roadmap creation*
+*Last updated: 2026-01-30 after Phase 4 verification passed - all requirements satisfied*

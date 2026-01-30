@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Screenshots get classified and organized without manual effort
-**Current focus:** Phase 3 - State Persistence (COMPLETE)
+**Current focus:** Phase 4 - Launch Experience
 
 ## Current Position
 
-Phase: 3 of 4 (State Persistence)
-Plan: 2 of 2 in current phase (PHASE COMPLETE)
-Status: Phase 3 complete, ready for Phase 4
-Last activity: 2026-01-30 - Completed 03-02-PLAN.md
+Phase: 4 of 4 (Launch Experience)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-30 - Completed 04-01-PLAN.md
 
-Progress: [#####-----] 50%
+Progress: [######----] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 1.6 min
-- Total execution time: 8 min
+- Total plans completed: 6
+- Average duration: 1.5 min
+- Total execution time: 9 min
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: [#####-----] 50%
 | 01-fix-ui-freeze | 2 | 3 min | 1.5 min |
 | 02-progress-indicators | 1 | <1 min | <1 min |
 | 03-state-persistence | 2 | 4 min | 2 min |
+| 04-launch-experience | 1 | 1 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (1 min), 02-01 (<1 min), 03-01 (2 min), 03-02 (2 min)
+- Last 5 plans: 02-01 (<1 min), 03-01 (2 min), 03-02 (2 min), 04-01 (1 min)
 - Trend: Stable at ~1.5 min/plan
 
 *Updated after each plan completion*
@@ -60,6 +61,7 @@ Recent decisions affecting current work:
 - [03-02]: Keep caption-based filtering as legacy fallback alongside ID-based filtering
 - [03-02]: Mark each screenshot processed immediately after success (crash safety)
 - [03-02]: Save results after batch completes (reduces write frequency)
+- [04-01]: Show skeleton only when isRefreshing AND successResults.isEmpty (prevents flicker)
 
 ### Pending Todos
 
@@ -72,8 +74,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 03-02-PLAN.md (Phase 3 complete)
-Resume file: None (ready for Phase 4)
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None
 
 ---
-*Last updated: 2026-01-30 after 03-02-PLAN.md completion*
+*Last updated: 2026-01-30 after 04-01-PLAN.md completion*
